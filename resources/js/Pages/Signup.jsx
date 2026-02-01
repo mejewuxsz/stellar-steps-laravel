@@ -195,7 +195,10 @@ export default function Signup() {
     };
     return (
         <>
-            <Head title={isLogin ? 'Log In' : 'Sign Up'} />
+            <Head title={isLogin ? 'Log In' : 'Sign Up'}>
+                <link rel="preload" href="/assets/img/LP_BG.jpg" as="image" />
+                <link rel="preload" href="/assets/img/openbook.png" as="image" />
+            </Head>
             <div
                 className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center p-2 sm:p-3"
                 style={{ backgroundImage: "url('/assets/img/LP_BG.jpg')" }}
@@ -207,6 +210,8 @@ export default function Signup() {
                     <img
                         src="/assets/img/openbook.png"
                         alt="Story book opened"
+                        fetchPriority="high"
+                        decoding="async"
                         className="max-h-[96vh] max-w-[96vw] w-auto h-auto object-contain drop-shadow-2xl pointer-events-none select-none block"
                     />
 
@@ -223,6 +228,8 @@ export default function Signup() {
                                     <img
                                         src="/assets/img/herobutton.png"
                                         alt="I'm a Hero"
+                                        loading="lazy"
+                                        decoding="async"
                                         className={`w-full h-auto drop-shadow-lg pointer-events-none select-none block transition-all duration-200 ${role === 'guardian' ? 'opacity-50 grayscale group-hover:opacity-80 group-hover:grayscale-0' : ''}`}
                                     />
                                 </button>
@@ -234,6 +241,8 @@ export default function Signup() {
                                     <img
                                         src="/assets/img/guardianbutton.png"
                                         alt="I'm a Guardian"
+                                        loading="lazy"
+                                        decoding="async"
                                         className={`w-full h-auto drop-shadow-lg pointer-events-none select-none block transition-all duration-200 ${role === 'hero' ? 'opacity-50 grayscale group-hover:opacity-80 group-hover:grayscale-0' : ''}`}
                                     />
                                 </button>
@@ -250,6 +259,8 @@ export default function Signup() {
                                 <img
                                     src="/assets/img/papetape.png"
                                     alt="Sign up note"
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-full h-full max-w-full max-h-full object-contain pointer-events-none select-none block drop-shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
                                 />
 

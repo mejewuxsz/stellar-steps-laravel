@@ -28,11 +28,11 @@ function StarsTabContent({ goldStarCount: propGoldCount }) {
                     <div key={index} className="relative w-16 h-16 sm:w-[4rem] sm:h-[4rem] flex-shrink-0">
                         {isGold ? (
                             <>
-                                <img src="/assets/img/Star.png" alt="" className={`absolute inset-0 w-full h-full object-contain pointer-events-none ${goldStarBlink}`} aria-hidden />
-                                <img src="/assets/img/Star.png" alt="" className={`relative z-10 w-full h-full object-contain ${goldStarGlow} ${index === 0 ? 'animate-star-unlock' : ''}`} aria-hidden />
+                                <img src="/assets/img/Star.png" alt="" loading="lazy" decoding="async" className={`absolute inset-0 w-full h-full object-contain pointer-events-none ${goldStarBlink}`} aria-hidden />
+                                <img src="/assets/img/Star.png" alt="" loading="lazy" decoding="async" className={`relative z-10 w-full h-full object-contain ${goldStarGlow} ${index === 0 ? 'animate-star-unlock' : ''}`} aria-hidden />
                             </>
                         ) : (
-                            <img src="/assets/img/Graystar.png" alt="" className={grayStarClass} aria-hidden />
+                            <img src="/assets/img/Graystar.png" alt="" loading="lazy" decoding="async" className={grayStarClass} aria-hidden />
                         )}
                     </div>
                 );
@@ -279,6 +279,8 @@ export default function Mainplay() {
                                     <img
                                         src="/assets/img/tabframe.png"
                                         alt=""
+                                        loading="lazy"
+                                        decoding="async"
                                         className="absolute inset-0 w-full h-full object-contain object-center drop-shadow-md pointer-events-none select-none transition-all duration-200 group-hover:brightness-110 group-hover:drop-shadow-xl"
                                         aria-hidden
                                     />
@@ -298,6 +300,8 @@ export default function Mainplay() {
                             <img
                                 src="/assets/img/openbook.png"
                                 alt="Story book opened"
+                                fetchPriority="high"
+                                decoding="async"
                                 className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-2xl pointer-events-none select-none block"
                             />
 
@@ -316,9 +320,11 @@ export default function Mainplay() {
                                 <img
                                     src={clearedStages[0] ? STAGE_ILLUSTRATIONS[0].C : STAGE_ILLUSTRATIONS[0].B}
                                     alt="Stage 1 Prologue"
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-full h-full object-contain object-left-top select-none block"
                                 />
-                                <img src={BUTTON_IMGS[getStageButtonState(0)]} alt={getStageButtonState(0) === 0 ? 'Locked' : getStageButtonState(0) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-[38%] -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(0); }} aria-hidden />
+                                <img src={BUTTON_IMGS[getStageButtonState(0)]} loading="lazy" decoding="async" alt={getStageButtonState(0) === 0 ? 'Locked' : getStageButtonState(0) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-[38%] -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(0); }} aria-hidden />
                             </div>
 
                             {/* Stage 5 – prologue right (B → C when cleared) */}
@@ -336,9 +342,11 @@ export default function Mainplay() {
                                 <img
                                     src={clearedStages[4] ? STAGE_ILLUSTRATIONS[4].C : STAGE_ILLUSTRATIONS[4].B}
                                     alt="Stage 5 Prologue"
+                                    loading="lazy"
+                                    decoding="async"
                                     className={`w-full h-full object-contain object-right-top select-none block ${!clearedStages[4] ? '[filter:brightness(0.5)_contrast(1.35)]' : ''}`}
                                 />
-                                <img src={BUTTON_IMGS[getStageButtonState(4)]} alt={getStageButtonState(4) === 0 ? 'Locked' : getStageButtonState(4) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-[62%] -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(4); }} aria-hidden />
+                                <img src={BUTTON_IMGS[getStageButtonState(4)]} loading="lazy" decoding="async" alt={getStageButtonState(4) === 0 ? 'Locked' : getStageButtonState(4) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-[62%] -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(4); }} aria-hidden />
                             </div>
 
                             {/* Stage 2 – castle (B → C when cleared) */}
@@ -356,9 +364,11 @@ export default function Mainplay() {
                                 <img
                                     src={clearedStages[1] ? STAGE_ILLUSTRATIONS[1].C : STAGE_ILLUSTRATIONS[1].B}
                                     alt="Stage 2 Castle"
+                                    loading="lazy"
+                                    decoding="async"
                                     className={`w-full h-full object-contain object-center select-none block ${!clearedStages[1] ? '[filter:brightness(0.6)_contrast(1.3)]' : ''}`}
                                 />
-                                <img src={BUTTON_IMGS[getStageButtonState(1)]} alt={getStageButtonState(1) === 0 ? 'Locked' : getStageButtonState(1) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-1/2 -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(1); }} aria-hidden />
+                                <img src={BUTTON_IMGS[getStageButtonState(1)]} loading="lazy" decoding="async" alt={getStageButtonState(1) === 0 ? 'Locked' : getStageButtonState(1) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-1/2 -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(1); }} aria-hidden />
                             </div>
 
                             {/* Stage 4 – gate (B → C when cleared) */}
@@ -376,9 +386,11 @@ export default function Mainplay() {
                                 <img
                                     src={clearedStages[3] ? STAGE_ILLUSTRATIONS[3].C : STAGE_ILLUSTRATIONS[3].B}
                                     alt="Stage 4 Gate"
+                                    loading="lazy"
+                                    decoding="async"
                                     className={`w-full h-full object-contain object-center select-none block ${!clearedStages[3] ? '[filter:brightness(0.4)_contrast(1.35)]' : ''}`}
                                 />
-                                <img src={BUTTON_IMGS[getStageButtonState(3)]} alt={getStageButtonState(3) === 0 ? 'Locked' : getStageButtonState(3) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-1/2 -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(3); }} aria-hidden />
+                                <img src={BUTTON_IMGS[getStageButtonState(3)]} loading="lazy" decoding="async" alt={getStageButtonState(3) === 0 ? 'Locked' : getStageButtonState(3) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-1/2 -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(3); }} aria-hidden />
                             </div>
 
                             {/* Stage 3 – woods (B → C when cleared) */}
@@ -396,9 +408,11 @@ export default function Mainplay() {
                                 <img
                                     src={clearedStages[2] ? STAGE_ILLUSTRATIONS[2].C : STAGE_ILLUSTRATIONS[2].B}
                                     alt="Stage 3 Woods"
+                                    loading="lazy"
+                                    decoding="async"
                                     className={`w-full h-full object-contain object-center select-none block ${!clearedStages[2] ? '[filter:brightness(0.55)_contrast(1.3)]' : ''}`}
                                 />
-                                <img src={BUTTON_IMGS[getStageButtonState(2)]} alt={getStageButtonState(2) === 0 ? 'Locked' : getStageButtonState(2) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-1/2 -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(2); }} aria-hidden />
+                                <img src={BUTTON_IMGS[getStageButtonState(2)]} loading="lazy" decoding="async" alt={getStageButtonState(2) === 0 ? 'Locked' : getStageButtonState(2) === 1 ? 'Play' : 'Replay'} className="absolute -bottom-[68px] left-1/2 -translate-x-1/2 h-[200px] w-auto max-w-[95%] object-contain select-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:brightness-110 hover:drop-shadow-xl" onClick={(e) => { e.stopPropagation(); onStageButtonClick(2); }} aria-hidden />
                             </div>
 
                             {/* Wooden sign – only when Menu is clicked; slide up then bounce, slide down on close */}
@@ -407,6 +421,8 @@ export default function Mainplay() {
                                 <img
                                     src="/assets/img/woodboard2.png"
                                     alt=""
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-full h-auto object-contain object-left-bottom drop-shadow-lg pointer-events-none select-none transition-all duration-200 group-hover:brightness-110 group-hover:drop-shadow-xl"
                                     aria-hidden
                                 />
@@ -447,6 +463,8 @@ export default function Mainplay() {
                                                     <img
                                                         src="/assets/img/tabframe.png"
                                                         alt=""
+                                                        loading="lazy"
+                                                        decoding="async"
                                                         className="absolute inset-0 w-full h-full object-contain object-center pointer-events-none select-none opacity-100 transition-all duration-200 group-hover:brightness-105 group-hover:drop-shadow-lg"
                                                         aria-hidden
                                                     />

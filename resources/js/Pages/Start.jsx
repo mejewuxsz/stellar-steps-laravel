@@ -17,7 +17,12 @@ export default function Start() {
 
     return (
         <>
-            <Head title="Stellar Steps" />
+            <Head title="Stellar Steps">
+                <link rel="preload" href="/assets/img/LP_BG.jpg" as="image" />
+                <link rel="preload" href="/assets/img/Book.png" as="image" />
+                <link rel="preload" href="/assets/img/openbooktape.png" as="image" />
+                <link rel="preload" href="/assets/img/title.png" as="image" />
+            </Head>
             <div
                 className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center"
                 style={{ backgroundImage: "url('/assets/img/LP_BG.jpg')" }}
@@ -32,6 +37,8 @@ export default function Start() {
                         <img
                             src="/assets/img/Book.png"
                             alt="Story book"
+                            fetchPriority="high"
+                            decoding="async"
                             className={`max-w-sm md:max-w-lg lg:max-w-2xl drop-shadow-2xl pointer-events-none select-none transition-opacity duration-700 ${
                                 bookState === 'open' ? 'opacity-0' : 'opacity-100'
                             }`}
@@ -41,6 +48,8 @@ export default function Start() {
                         <img
                             src="/assets/img/openbooktape.png"
                             alt="Story book opened"
+                            fetchPriority="high"
+                            decoding="async"
                             className={`max-w-sm md:max-w-lg lg:max-w-2xl drop-shadow-2xl pointer-events-none select-none absolute inset-0 m-auto transition-opacity duration-700 ${
                                 bookState === 'open' ? 'opacity-100' : 'opacity-0'
                             }`}
@@ -50,6 +59,8 @@ export default function Start() {
                         <img
                             src="/assets/img/title.png"
                             alt="Stellar Steps title"
+                            fetchPriority="high"
+                            decoding="async"
                             className={`pointer-events-none select-none absolute top-[18%] left-1/2 -translate-x-[40%] w-3/4 md:w-2/3 title-logo-glow transition-opacity duration-700 ${
                                 bookState === 'open' ? 'opacity-0' : 'opacity-100'
                             }`}
