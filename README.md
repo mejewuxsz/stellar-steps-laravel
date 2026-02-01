@@ -7,6 +7,61 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Stellar Steps (Laravel + Inertia React)
+
+This folder is the **Option B** stack for Stellar Steps: **Laravel (backend) + Inertia (React) + Tailwind (frontend)**.
+
+### Run locally (XAMPP-friendly)
+
+From `c:\xampp\htdocs\project-stellar-steps\stellar-steps-laravel`:
+
+- Install dependencies (already done by the scaffold, rerun if needed):
+  - `composer install`
+  - `npm install`
+- Start the dev servers:
+  - `php artisan serve`
+  - `npm run dev`
+
+Then open the URL shown by `php artisan serve` (usually `http://127.0.0.1:8000`).
+
+### Using MySQL (recommended with XAMPP)
+
+By default, this scaffold may use SQLite for convenience. For XAMPP MySQL, update your `.env`:
+
+- `DB_CONNECTION=mysql`
+- `DB_HOST=127.0.0.1`
+- `DB_PORT=3306`
+- `DB_DATABASE=stellar_steps`
+- `DB_USERNAME=root`
+- `DB_PASSWORD=`
+
+Then run:
+
+- `php artisan migrate`
+
+### Deploy on Railway
+
+The app is set up for [Railway](https://railway.app) with a Dockerfile and `railway.toml`.
+
+1. **Create a project** at [railway.com/new](https://railway.com/new) and choose **Deploy from GitHub repo**. Select this repo.
+2. **Set Root Directory** (in the service **Settings** → **Source**) to `stellar-steps-laravel` so Railway builds from the Laravel app folder.
+3. **Add a MySQL database**: In the project, click **+ New** → **Database** → **MySQL**. Railway will set `MYSQL_URL` (or similar); you’ll map it to Laravel’s `DB_*` variables.
+4. **Variables** (Settings → Variables). Add at least:
+   - `APP_KEY` — from `php artisan key:generate --show` (run locally).
+   - `APP_ENV` — `production`
+   - `APP_DEBUG` — `false`
+   - `APP_URL` — your Railway URL (e.g. `https://your-app.up.railway.app`) after you generate a domain.
+   - **Database**: set `DB_CONNECTION=mysql` and either
+     - `DB_URL=${{MySQL.MYSQL_URL}}` (reference your MySQL service name), or
+     - `DB_HOST=${{MySQL.MYSQLHOST}}`, `DB_PORT=${{MySQL.MYSQLPORT}}`, `DB_DATABASE=${{MySQL.MYSQLDATABASE}}`, `DB_USERNAME=${{MySQL.MYSQLUSER}}`, `DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}`.
+   - **Logging** (recommended on Railway):
+     - `LOG_CHANNEL=stderr`
+     - `LOG_STDERR_FORMATTER=\Monolog\Formatter\JsonFormatter`
+5. **Generate a domain**: Settings → **Networking** → **Generate Domain**.
+6. **Redeploy** so `APP_URL` and DB are correct.
+
+Migrations run automatically before each deploy via `railway.toml` `releaseCommand`. For queue workers or cron, add separate services and use the scripts in `railway/` (e.g. `railway/init-app.sh`).
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

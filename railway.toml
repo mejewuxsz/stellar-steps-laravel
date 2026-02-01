@@ -1,0 +1,9 @@
+# Railway deployment config for Stellar Steps (Laravel)
+# Set "Root Directory" to stellar-steps-laravel when deploying from repo root.
+
+[build]
+builder = "dockerfile"
+
+[deploy]
+# Run migrations and cache config before each deploy
+releaseCommand = "php artisan migrate --force && php artisan config:cache"

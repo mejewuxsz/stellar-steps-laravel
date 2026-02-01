@@ -1,0 +1,79 @@
+import { useState } from 'react';
+import { Head } from '@inertiajs/react';
+
+export default function Start() {
+    const [bookState, setBookState] = useState('closed'); // 'closed' | 'opening' | 'open'
+
+    const handleTap = () => {
+        if (bookState !== 'closed') return;
+
+        setBookState('opening');
+
+        // After a short fade-out, switch to the open book
+        setTimeout(() => {
+            setBookState('open');
+        }, 600); // keep in sync with fade duration
+    };
+
+    return (
+        <>
+            <Head title="Stellar Steps" />
+            <div
+                className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center"
+                style={{ backgroundImage: "url('/assets/img/LP_BG.jpg')" }}
+            >
+                <button
+                    type="button"
+                    onClick={handleTap}
+                    className="relative outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 rounded-xl"
+                >
+                    <div className="relative transform transition-transform duration-200 hover:scale-110">
+                        {/* Closed book image */}
+                        <img
+                            src="/assets/img/Book.png"
+                            alt="Story book"
+                            className={`max-w-sm md:max-w-lg lg:max-w-2xl drop-shadow-2xl pointer-events-none select-none transition-opacity duration-700 ${
+                                bookState === 'open' ? 'opacity-0' : 'opacity-100'
+                            }`}
+                        />
+
+                        {/* Open book image */}
+                        <img
+                            src="/assets/img/openbooktape.png"
+                            alt="Story book opened"
+                            className={`max-w-sm md:max-w-lg lg:max-w-2xl drop-shadow-2xl pointer-events-none select-none absolute inset-0 m-auto transition-opacity duration-700 ${
+                                bookState === 'open' ? 'opacity-100' : 'opacity-0'
+                            }`}
+                        />
+
+                        {/* Title fades out when book opens */}
+                        <img
+                            src="/assets/img/title.png"
+                            alt="Stellar Steps title"
+                            className={`pointer-events-none select-none absolute top-[18%] left-1/2 -translate-x-[40%] w-3/4 md:w-2/3 title-logo-glow transition-opacity duration-700 ${
+                                bookState === 'open' ? 'opacity-0' : 'opacity-100'
+                            }`}
+                        />
+
+                        {/* TAP TO OPEN fades out when book opens */}
+                        <div
+                            className={`absolute inset-x-0 bottom-[20%] flex justify-center transition-opacity duration-700 ${
+                                bookState === 'open' ? 'opacity-0' : 'opacity-100'
+                            }`}
+                        >
+                            <span
+                                className="inline-block font-extrabold tracking-[0.25em] text-sm md:text-base lg:text-lg text-yellow-300 animate-pulse ml-8 transform transition-transform duration-200 hover:scale-110"
+                                style={{
+                                    textShadow:
+                                        '0 0 8px rgba(250,250,150,0.9), 0 0 18px rgba(250,250,150,0.7)',
+                                }}
+                            >
+                                TAP TO OPEN
+                            </span>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </>
+    );
+}

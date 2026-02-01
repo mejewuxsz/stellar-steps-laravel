@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'age',
+        'hero_code',
     ];
 
     /**
@@ -32,6 +35,23 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Generate a unique hero code (e.g. G4K2-M9P1) for linking guardians.
+     */
+    public static function generateHeroCode(): string
+    {
+        do {
+            $code = strtoupper(
+                substr(bin2hex(random_bytes(2)), 0, 2) . rand(0, 9) .
+                substr(bin2hex(random_bytes(2)), 0, 2) . '-' .
+                substr(bin2hex(random_bytes(2)), 0, 2) . rand(0, 9) .
+                substr(bin2hex(random_bytes(2)), 0, 2)
+            );
+        } while (self::where('hero_code', $code)->exists());
+
+        return $code;
+    }
 
     /**
      * Get the attributes that should be cast.

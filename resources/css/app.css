@@ -1,11 +1,202 @@
-@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&family=Comfortaa:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600;700;800&family=Patrick+Hand&family=Quicksand:wght@300;400;500;600;700&display=swap');
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+/* Stellar Steps title.png glow – gold (Stellar/star) + blue/purple (Steps), brighter + blink */
+@keyframes title-glow-blink {
+    0%, 100% {
+        filter:
+            drop-shadow(0 0 10px rgba(253, 224, 71, 0.9))
+            drop-shadow(0 0 22px rgba(250, 204, 21, 0.7))
+            drop-shadow(0 0 34px rgba(253, 224, 71, 0.5))
+            drop-shadow(0 0 32px rgba(99, 102, 241, 0.6))
+            drop-shadow(0 0 44px rgba(139, 92, 246, 0.5));
+    }
+    50% {
+        filter:
+            drop-shadow(0 0 14px rgba(254, 240, 138, 1))
+            drop-shadow(0 0 28px rgba(253, 224, 71, 0.9))
+            drop-shadow(0 0 42px rgba(250, 204, 21, 0.7))
+            drop-shadow(0 0 40px rgba(129, 140, 248, 0.8))
+            drop-shadow(0 0 52px rgba(167, 139, 250, 0.6));
+    }
+}
+.title-logo-glow {
+    animation: title-glow-blink 2s ease-in-out infinite;
+}
+
+.rounded-sans {
+    font-family: 'Quicksand', 'Comfortaa', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    font-weight: 800 !important;
+}
+
+.cartoon-heading {
+    font-family: 'Baloo 2', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.cartoon-body {
+    font-family: 'Patrick Hand', 'Comic Sans MS', cursive, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Rounded sans-serif, thin-to-medium weight (e.g. for "My Adventure Map") */
+.rounded-sans-body {
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 400;
+}
+
+/* Cartoonish rounded – Quicksand (medium weight for “My Adventure Map”) */
+.cartoon-thin {
+    font-family: 'Quicksand', 'Comfortaa', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 600;
+}
+
+/* PIN numbers: Patrick Hand (rounded, slightly irregular strokes, no serifs) */
+.pin-digits {
+    font-family: 'Patrick Hand', 'Comic Sans MS', cursive, system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+}
+
+input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Remove black/square focus border on wooden nav tab buttons */
+.main-nav .wood-tab-btn,
+.main-nav .wood-tab-btn:hover,
+.main-nav .wood-tab-btn:focus,
+.main-nav .wood-tab-btn:focus-visible,
+.main-nav .wood-tab-btn:active {
+    outline: none !important;
+    outline-width: 0 !important;
+    outline-style: none !important;
+    outline-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    /* Tailwind ring – force off */
+    --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-offset-width: 0px !important;
+    --tw-ring-offset-color: transparent !important;
+}
+.main-nav .wood-tab-btn * {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.cartoon-underline {
+    border-bottom: 2px solid rgba(75, 51, 24, 0.6) !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,2 Q20,0 40,2 T80,2 T120,2 T160,2 T200,2' stroke='%234b3318' stroke-width='2' fill='none' opacity='0.6'/%3E%3C/svg%3E");
+    background-position: bottom center;
+    background-repeat: no-repeat;
+    background-size: 100% 3px;
+    padding-bottom: 4px;
+}
+
+/* Slide down on load (for nav tabs) */
+@keyframes slide-down-in {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(0); }
+}
+.animate-slide-down-in {
+    animation: slide-down-in 0.6s ease-out forwards;
+}
+
+/* Slide up when element appears (e.g. wooden sign from menu click) */
+@keyframes slide-up-in {
+    0% { transform: translateY(100%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up-in {
+    animation: slide-up-in 0.5s ease-out forwards;
+}
+
+/* Slide up then bounce: slide up first, then bounce-in effect after (solid, no fade) */
+@keyframes slide-up-then-bounce {
+    0% { transform: translateY(100%); }
+    50% { transform: translateY(0); }
+    65% { transform: translateY(0) scale(1.06); }
+    80% { transform: translateY(0) scale(0.98); }
+    100% { transform: translateY(0) scale(1); }
+}
+.animate-slide-up-then-bounce {
+    animation: slide-up-then-bounce 0.9s ease-out forwards;
+}
+
+/* Slide down when element disappears (solid, no fade) */
+@keyframes slide-down-out {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+}
+.animate-slide-down-out {
+    animation: slide-down-out 0.4s ease-in forwards;
+}
+
+/* Fade in after slide-down (for nav tab content) – content stays hidden until slide ends */
+@keyframes fade-in-after-slide {
+    0% { opacity: 0; visibility: visible; }
+    100% { opacity: 1; visibility: visible; }
+}
+.animate-fade-in-after-slide {
+    opacity: 0;
+    visibility: hidden;
+    animation: fade-in-after-slide 0.5s ease-out 0.6s forwards;
+}
+
+/* Bounce-in when element appears */
+@keyframes bounce-in {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.08); }
+    70% { transform: scale(0.92); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.animate-bounce-in {
+    animation: bounce-in 0.5s ease-out forwards;
+}
+
+/* Bounce-out when element disappears – opacity to 0 by 45% */
+@keyframes bounce-out {
+    0% { transform: scale(1); opacity: 1; }
+    45% { transform: scale(1.06); opacity: 0; }
+    50% { transform: scale(0.92); opacity: 0; }
+    100% { transform: scale(0.3); opacity: 0; }
+}
+.animate-bounce-out {
+    animation: bounce-out 0.25s ease-in forwards;
+}
+
+/* First star turns gold: pop-in when unlocking (hero achievement) */
+@keyframes star-unlock {
+    0% { transform: scale(0.4); opacity: 0; }
+    60% { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.animate-star-unlock {
+    animation: star-unlock 0.45s ease-out forwards;
+}
+
+/* Blinking glow: pulses by default, steady on parent hover */
+@keyframes glow-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
+}
+.animate-glow-blink {
+    animation: glow-blink 1.2s ease-in-out infinite;
+}
+
+.cartoon-underline-black {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.8) !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,2 Q20,0 40,2 T80,2 T120,2 T160,2 T200,2' stroke='%23000' stroke-width='2' fill='none' opacity='0.9'/%3E%3C/svg%3E");
+    background-position: bottom center;
+    background-repeat: no-repeat;
+    background-size: 100% 3px;
+    padding-bottom: 4px;
 }
