@@ -34,7 +34,14 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            // If DB_DATABASE is a bare name (e.g. "railway") with no path, use database dir so file can be created
+            'database' => (function () {
+                $db = env('DB_DATABASE', 'database.sqlite');
+                if ($db === '' || str_contains($db, '/') || str_contains($db, '\\')) {
+                    return $db === '' ? database_path('database.sqlite') : $db;
+                }
+                return database_path(str_ends_with($db, '.sqlite') ? $db : $db . '.sqlite');
+            })(),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,
