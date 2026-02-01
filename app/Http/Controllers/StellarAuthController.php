@@ -7,35 +7,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class StellarAuthController extends Controller
 {
     /**
-     * Force default DB to MySQL when MySQL env vars are present (Railway). Stops cached config from using SQLite.
+     * Use MySQL for auth (Railway). Avoids SQLite when env/config default is wrong.
      */
-    private function useMysqlIfConfigured(): void
+    private function useMysqlForAuth(): void
     {
-        if (env('DB_HOST')) {
-            Config::set('database.default', 'mysql');
-        }
-    }
-
-    /**
-     * Ensure users table has Hero/Guardian columns (migrations have run).
-     * Use mysql connection explicitly when DB_HOST is set (Railway) so we never touch SQLite.
-     */
-    private function ensureStellarMigrationsRan(): ?\Illuminate\Http\RedirectResponse
-    {
-        $connection = env('DB_HOST') ? 'mysql' : config('database.default');
-        if (! Schema::connection($connection)->hasColumn('users', 'role')) {
-            return back()->withErrors([
-                'pin' => 'Database setup is incomplete. Please redeploy the app on Railway so migrations run (Settings → Redeploy), or run: php artisan migrate',
-            ]);
-        }
-        return null;
+        Config::set('database.default', 'mysql');
     }
 
     /**
@@ -43,10 +25,7 @@ class StellarAuthController extends Controller
      */
     public function registerHero(Request $request)
     {
-        $this->useMysqlIfConfigured();
-        if ($redirect = $this->ensureStellarMigrationsRan()) {
-            return $redirect;
-        }
+        $this->useMysqlForAuth();
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -54,24 +33,33 @@ class StellarAuthController extends Controller
             'pin' => 'required|string|size:4|regex:/^[0-9]{4}$/',
         ]);
 
-        $existing = User::where('role', 'hero')->where('name', $request->name)->first();
-        if ($existing) {
-            return back()->withErrors(['name' => 'A hero with this name already exists.']);
+        try {
+            $existing = User::where('role', 'hero')->where('name', $request->name)->first();
+            if ($existing) {
+                return back()->withErrors(['name' => 'A hero with this name already exists.']);
+            }
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => 'hero.' . Str::random(20) . '@stellar.local',
+                'password' => Hash::make($request->pin),
+                'role' => 'hero',
+                'age' => $request->age,
+                'hero_code' => User::generateHeroCode(),
+            ]);
+
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            return redirect()->route('mainplay');
+        } catch (\Throwable $e) {
+            if (str_contains($e->getMessage(), 'unable to open database file') || str_contains($e->getMessage(), 'SQLSTATE')) {
+                return back()->withErrors([
+                    'pin' => 'Database error. On Railway, set DB_CONNECTION=mysql and add MySQL variables (DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD), then redeploy.',
+                ]);
+            }
+            throw $e;
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => 'hero.' . Str::random(20) . '@stellar.local',
-            'password' => Hash::make($request->pin),
-            'role' => 'hero',
-            'age' => $request->age,
-            'hero_code' => User::generateHeroCode(),
-        ]);
-
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->route('mainplay');
     }
 
     /**
@@ -79,10 +67,7 @@ class StellarAuthController extends Controller
      */
     public function registerGuardian(Request $request)
     {
-        $this->useMysqlIfConfigured();
-        if ($redirect = $this->ensureStellarMigrationsRan()) {
-            return $redirect;
-        }
+        $this->useMysqlForAuth();
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -90,24 +75,33 @@ class StellarAuthController extends Controller
             'pin' => 'required|string|size:4|regex:/^[0-9]{4}$/',
         ]);
 
-        $hero = User::where('role', 'hero')->where('hero_code', $request->hero_code)->first();
-        if (!$hero) {
-            return back()->withErrors(['hero_code' => 'No hero found with this Hero Code.']);
+        try {
+            $hero = User::where('role', 'hero')->where('hero_code', $request->hero_code)->first();
+            if (!$hero) {
+                return back()->withErrors(['hero_code' => 'No hero found with this Hero Code.']);
+            }
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => 'guardian.' . Str::random(20) . '@stellar.local',
+                'password' => Hash::make($request->pin),
+                'role' => 'guardian',
+                'age' => null,
+                'hero_code' => null,
+            ]);
+
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            return redirect()->route('mainplay');
+        } catch (\Throwable $e) {
+            if (str_contains($e->getMessage(), 'unable to open database file') || str_contains($e->getMessage(), 'SQLSTATE')) {
+                return back()->withErrors([
+                    'pin' => 'Database error. On Railway, set DB_CONNECTION=mysql and add MySQL variables, then redeploy.',
+                ]);
+            }
+            throw $e;
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => 'guardian.' . Str::random(20) . '@stellar.local',
-            'password' => Hash::make($request->pin),
-            'role' => 'guardian',
-            'age' => null,
-            'hero_code' => null,
-        ]);
-
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->route('mainplay');
     }
 
     /**
@@ -115,10 +109,7 @@ class StellarAuthController extends Controller
      */
     public function login(Request $request)
     {
-        $this->useMysqlIfConfigured();
-        if ($redirect = $this->ensureStellarMigrationsRan()) {
-            return $redirect;
-        }
+        $this->useMysqlForAuth();
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -126,15 +117,24 @@ class StellarAuthController extends Controller
             'role' => 'required|in:hero,guardian',
         ]);
 
-        $user = User::where('role', $request->role)->where('name', $request->name)->first();
+        try {
+            $user = User::where('role', $request->role)->where('name', $request->name)->first();
 
-        if (!$user || !Hash::check($request->pin, $user->password)) {
-            return back()->withErrors(['pin' => 'Name and PIN do not match.']);
+            if (!$user || !Hash::check($request->pin, $user->password)) {
+                return back()->withErrors(['pin' => 'Name and PIN do not match.']);
+            }
+
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            return redirect()->route('mainplay');
+        } catch (\Throwable $e) {
+            if (str_contains($e->getMessage(), 'unable to open database file') || str_contains($e->getMessage(), 'SQLSTATE')) {
+                return back()->withErrors([
+                    'pin' => 'Database error. On Railway, set DB_CONNECTION=mysql and add MySQL variables, then redeploy.',
+                ]);
+            }
+            throw $e;
         }
-
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->route('mainplay');
     }
 }
