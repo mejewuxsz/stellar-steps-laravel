@@ -196,19 +196,19 @@ export default function Signup() {
     return (
         <>
             <Head title={isLogin ? 'Log In' : 'Sign Up'}>
-                <link rel="preload" href="/assets/img/LP_BG.jpg" as="image" />
-                <link rel="preload" href="/assets/img/openbook.png" as="image" />
+                <link rel="preload" href="/assets/img/LP_BG.webp" as="image" />
+                <link rel="preload" href="/assets/img/openbook.webp" as="image" />
             </Head>
             <div
                 className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center p-2 sm:p-3"
-                style={{ backgroundImage: "url('/assets/img/LP_BG.jpg')" }}
+                style={{ backgroundImage: "url('/assets/img/LP_BG.webp')" }}
             >
                 <div
                     className={`relative w-fit max-w-[96vw] max-h-[96vh] flex justify-center items-center transition-opacity duration-500 ease-out ${hasFadedIn ? 'opacity-100' : 'opacity-0'}`}
                 >
                     {/* Open book background - max size so only a little wood shows */}
                     <img
-                        src="/assets/img/openbook.png"
+                        src="/assets/img/openbook.webp"
                         alt="Story book opened"
                         fetchPriority="high"
                         decoding="async"
@@ -226,7 +226,7 @@ export default function Signup() {
                                     className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-400 rounded-full hover:scale-105 active:scale-95 transition-transform duration-200 w-[70%] sm:w-[72%] md:w-[75%] max-w-[22rem] md:max-w-[26rem]"
                                 >
                                     <img
-                                        src="/assets/img/herobutton.png"
+                                        src="/assets/img/herobutton.webp"
                                         alt="I'm a Hero"
                                         loading="lazy"
                                         decoding="async"
@@ -239,7 +239,7 @@ export default function Signup() {
                                     className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400 rounded-full hover:scale-105 active:scale-95 transition-transform duration-200 w-[70%] sm:w-[72%] md:w-[75%] max-w-[22rem] md:max-w-[26rem]"
                                 >
                                     <img
-                                        src="/assets/img/guardianbutton.png"
+                                        src="/assets/img/guardianbutton.webp"
                                         alt="I'm a Guardian"
                                         loading="lazy"
                                         decoding="async"
@@ -257,7 +257,7 @@ export default function Signup() {
                             {/* Paper tape container - extends beyond right page for bigger look */}
                             <div ref={tapeRef} className="relative w-[125%] h-[125%] min-w-0 min-h-0 flex items-center justify-center -m-[12.5%]">
                                 <img
-                                    src="/assets/img/papetape.png"
+                                    src="/assets/img/papetape.webp"
                                     alt="Sign up note"
                                     loading="lazy"
                                     decoding="async"

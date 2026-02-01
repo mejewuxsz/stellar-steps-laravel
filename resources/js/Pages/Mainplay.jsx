@@ -28,11 +28,11 @@ function StarsTabContent({ goldStarCount: propGoldCount }) {
                     <div key={index} className="relative w-16 h-16 sm:w-[4rem] sm:h-[4rem] flex-shrink-0">
                         {isGold ? (
                             <>
-                                <img src="/assets/img/Star.png" alt="" loading="lazy" decoding="async" className={`absolute inset-0 w-full h-full object-contain pointer-events-none ${goldStarBlink}`} aria-hidden />
-                                <img src="/assets/img/Star.png" alt="" loading="lazy" decoding="async" className={`relative z-10 w-full h-full object-contain ${goldStarGlow} ${index === 0 ? 'animate-star-unlock' : ''}`} aria-hidden />
+                                <img src="/assets/img/Star.webp" alt="" loading="lazy" decoding="async" className={`absolute inset-0 w-full h-full object-contain pointer-events-none ${goldStarBlink}`} aria-hidden />
+                                <img src="/assets/img/Star.webp" alt="" loading="lazy" decoding="async" className={`relative z-10 w-full h-full object-contain ${goldStarGlow} ${index === 0 ? 'animate-star-unlock' : ''}`} aria-hidden />
                             </>
                         ) : (
-                            <img src="/assets/img/Graystar.png" alt="" loading="lazy" decoding="async" className={grayStarClass} aria-hidden />
+                            <img src="/assets/img/Graystar.webp" alt="" loading="lazy" decoding="async" className={grayStarClass} aria-hidden />
                         )}
                     </div>
                 );
@@ -97,16 +97,16 @@ const PROFILE_BOUNCE_OUT_MS = 250;
 const WOODEN_SIGN_SLIDE_DOWN_MS = 400;
 
 /** Stage system: 0 = locked, 1 = play, 2 = replay */
-const BUTTON_IMGS = ['/assets/img/locked.png', '/assets/img/play.png', '/assets/img/replay.png'];
+const BUTTON_IMGS = ['/assets/img/locked.webp', '/assets/img/play.webp', '/assets/img/replay.webp'];
 /** Stage 1 full-screen background (attic) when Play is clicked */
-const STAGE_1_FULLSCREEN_BG = '/assets/img/Attic Background -20260201T170631Z-3-001/Attic Background/attic1.jpeg';
+const STAGE_1_FULLSCREEN_BG = '/assets/img/Attic Background -20260201T170631Z-3-001/Attic Background/attic1.webp';
 /** Stage illustration B (uncleared) and C (cleared) – stages 1–5 */
 const STAGE_ILLUSTRATIONS = [
-    { B: '/assets/img/prologueB.png', C: '/assets/img/prologueC.png' },  // Stage 1 – prologue left
-    { B: '/assets/img/castleB.png', C: '/assets/img/castleC.png' },       // Stage 2 – castle
-    { B: '/assets/img/woodsB.png', C: '/assets/img/woodsC.png' },         // Stage 3 – woods
-    { B: '/assets/img/gateB.png', C: '/assets/img/gateC.png' },           // Stage 4 – gate
-    { B: '/assets/img/prologueB.png', C: '/assets/img/prologueC.png' },  // Stage 5 – prologue right
+    { B: '/assets/img/prologueB.webp', C: '/assets/img/prologueC.webp' },  // Stage 1 – prologue left
+    { B: '/assets/img/castleB.webp', C: '/assets/img/castleC.webp' },       // Stage 2 – castle
+    { B: '/assets/img/woodsB.webp', C: '/assets/img/woodsC.webp' },         // Stage 3 – woods
+    { B: '/assets/img/gateB.webp', C: '/assets/img/gateC.webp' },           // Stage 4 – gate
+    { B: '/assets/img/prologueB.webp', C: '/assets/img/prologueC.webp' },  // Stage 5 – prologue right
 ];
 
 export default function Mainplay() {
@@ -241,7 +241,7 @@ export default function Mainplay() {
             )}
             <div
                 className="relative w-full h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
-                style={{ backgroundImage: "url('/assets/img/LP_BG.jpg')" }}
+                style={{ backgroundImage: "url('/assets/img/LP_BG.webp')" }}
             >
                 {/* Fixed-size layout canvas – scaled to fit viewport */}
                 <div
@@ -277,7 +277,7 @@ export default function Mainplay() {
                             <Wrapper key={tab.id} {...wrapperProps}>
                                 <div className="relative w-full h-full transition-transform duration-200 origin-center group-hover:scale-105">
                                     <img
-                                        src="/assets/img/tabframe.png"
+                                        src="/assets/img/tabframe.webp"
                                         alt=""
                                         loading="lazy"
                                         decoding="async"
@@ -298,7 +298,7 @@ export default function Mainplay() {
                         <div className="relative w-full h-full flex justify-center items-start">
                             {/* Open book background */}
                             <img
-                                src="/assets/img/openbook.png"
+                                src="/assets/img/openbook.webp"
                                 alt="Story book opened"
                                 fetchPriority="high"
                                 decoding="async"
@@ -419,7 +419,7 @@ export default function Mainplay() {
                             {(showWoodenSign || woodenSignClosing) && (
                             <div className={`group absolute -left-[20%] bottom-0 w-[100%] max-w-[1100px] z-[50] origin-left-bottom transition-transform duration-200 hover:scale-105 ${woodenSignClosing ? 'animate-slide-down-out' : 'animate-slide-up-then-bounce'}`}>
                                 <img
-                                    src="/assets/img/woodboard2.png"
+                                    src="/assets/img/woodboard2.webp"
                                     alt=""
                                     loading="lazy"
                                     decoding="async"
@@ -461,7 +461,7 @@ export default function Mainplay() {
                                             <div className={`group relative z-[30] pointer-events-auto flex flex-col items-center justify-center w-full max-w-5xl -mt-[2%] ml-[32rem] sm:ml-[36rem] transition-transform duration-200 origin-center hover:scale-[1.01] cursor-pointer ${profileClosing ? 'animate-bounce-out' : 'animate-bounce-in'}`}>
                                                 <div className="relative w-full flex flex-col items-center p-16 sm:p-20 min-h-[16rem] sm:min-h-[20rem]">
                                                     <img
-                                                        src="/assets/img/tabframe.png"
+                                                        src="/assets/img/tabframe.webp"
                                                         alt=""
                                                         loading="lazy"
                                                         decoding="async"

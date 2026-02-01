@@ -12,16 +12,16 @@ export default function Welcome() {
     return (
         <>
             <Head title="Stellar Steps">
-                <link rel="preload" href="/assets/img/LP_BG.jpg" as="image" />
-                <link rel="preload" href="/assets/img/Book.png" as="image" />
-                <link rel="preload" href="/assets/img/title.png" as="image" />
+                <link rel="preload" href="/assets/img/LP_BG.webp" as="image" />
+                <link rel="preload" href="/assets/img/Book.webp" as="image" />
+                <link rel="preload" href="/assets/img/title.webp" as="image" />
             </Head>
             {/* Warm wood-tone fallback so content is visible before images load */}
             <div
                 className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center transition-colors duration-300"
                 style={{
                     backgroundColor: '#5c4a3d',
-                    backgroundImage: "url('/assets/img/LP_BG.jpg')",
+                    backgroundImage: "url('/assets/img/LP_BG.webp')",
                 }}
             >
                 <button
@@ -31,7 +31,7 @@ export default function Welcome() {
                 >
                     <div className="relative transform transition-transform duration-200 hover:scale-110">
                         <img
-                            src="/assets/img/Book.png"
+                            src="/assets/img/Book.webp"
                             alt="Story book"
                             fetchPriority="high"
                             decoding="async"
@@ -40,7 +40,7 @@ export default function Welcome() {
                         />
 
                         <img
-                            src="/assets/img/title.png"
+                            src="/assets/img/title.webp"
                             alt="Stellar Steps title"
                             fetchPriority="high"
                             decoding="async"
