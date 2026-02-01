@@ -29,10 +29,20 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        // Share only safe, serializable user data (avoids 500 if DB columns differ)
+        $authUser = $user ? [
+            'id' => $user->id,
+            'name' => $user->name,
+            'role' => $user->role ?? null,
+            'age' => $user->age ?? null,
+            'hero_code' => $user->hero_code ?? null,
+        ] : null;
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $authUser,
             ],
         ];
     }

@@ -19,5 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Log full exception to stderr in production so Railway deploy logs show the real error
+        $exceptions->reportable(function (\Throwable $e) {
+            if (app()->environment('production')) {
+                $msg = $e->getMessage() . "\n" . $e->getFile() . ':' . $e->getLine() . "\n" . $e->getTraceAsString();
+                @file_put_contents('php://stderr', "[Stellar Steps] " . $msg . "\n");
+            }
+        });
     })->create();
