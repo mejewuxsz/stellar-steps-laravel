@@ -14,33 +14,39 @@ use Inertia\Inertia;
 class StellarAuthController extends Controller
 {
     /**
-     * Read env var from multiple sources (Railway may inject via getenv, $_ENV, or .env).
+     * Read env var from multiple sources; try alternate key if first is missing (Railway uses MYSQLHOST etc.).
      */
-    private function getEnvVar(string $key): ?string
+    private function getEnvVar(string $key, ?string $altKey = null): ?string
     {
-        $v = getenv($key);
-        if ($v !== false && $v !== '') {
-            return $v;
+        foreach (array_filter([$key, $altKey]) as $k) {
+            $v = getenv($k);
+            if ($v !== false && $v !== '') {
+                return $v;
+            }
+            $v = $_ENV[$k] ?? null;
+            if ($v !== null && $v !== '') {
+                return $v;
+            }
+            $v = env($k);
+            if ($v !== null && $v !== '') {
+                return $v;
+            }
         }
-        $v = $_ENV[$key] ?? null;
-        if ($v !== null && $v !== '') {
-            return $v;
-        }
-        $v = env($key);
-        return $v !== null && $v !== '' ? $v : null;
+        return null;
     }
 
     /**
-     * Use MySQL for auth (Railway). Set default and mysql config from env so it works even when config is cached.
+     * Use MySQL for auth (Railway). Set mysql config from DB_* or Railway's MYSQL* vars so host is not 127.0.0.1.
      */
     private function useMysqlForAuth(): void
     {
         Config::set('database.default', 'mysql');
-        $host = $this->getEnvVar('DB_HOST') ?? config('database.connections.mysql.host');
-        $port = $this->getEnvVar('DB_PORT') ?? config('database.connections.mysql.port');
-        $database = $this->getEnvVar('DB_DATABASE') ?? config('database.connections.mysql.database');
-        $username = $this->getEnvVar('DB_USERNAME') ?? config('database.connections.mysql.username');
-        $password = $this->getEnvVar('DB_PASSWORD');
+        // Railway may expose MySQL as MYSQLHOST, MYSQLPORT, etc. when DB_* are not in process env
+        $host = $this->getEnvVar('DB_HOST', 'MYSQLHOST') ?? config('database.connections.mysql.host');
+        $port = $this->getEnvVar('DB_PORT', 'MYSQLPORT') ?? config('database.connections.mysql.port');
+        $database = $this->getEnvVar('DB_DATABASE', 'MYSQLDATABASE') ?? config('database.connections.mysql.database');
+        $username = $this->getEnvVar('DB_USERNAME', 'MYSQLUSER') ?? config('database.connections.mysql.username');
+        $password = $this->getEnvVar('DB_PASSWORD', 'MYSQLPASSWORD');
         if ($password === null) {
             $password = config('database.connections.mysql.password');
         }
