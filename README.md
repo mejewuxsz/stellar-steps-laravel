@@ -73,6 +73,8 @@ The app is set up for [Railway](https://railway.app) with a Dockerfile and `rail
 
 4. Redeploy the web service. Migrations run automatically via `railway.toml` and will use the new MySQL database.
 
+**If you get a 500 error:** The app uses the database for sessions and cache. Add **Variables**: `LOG_CHANNEL=stderr` and `LOG_LEVEL=debug`, then redeploy and check **Deploy Logs** for the exception. Often the cause is MySQL connection (wrong `DB_*` or reference name). To test without DB: set `SESSION_DRIVER=file` and `CACHE_STORE=file` temporarily; if the app loads, fix the MySQL variables and switch back to `database`.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
