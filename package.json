@@ -5,7 +5,8 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "images:webp": "node scripts/convert-images-to-webp.mjs"
+        "images:webp": "node scripts/convert-images-to-webp.mjs",
+        "images:responsive": "node scripts/responsive-images.mjs"
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",

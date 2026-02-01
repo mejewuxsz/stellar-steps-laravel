@@ -196,19 +196,26 @@ export default function Signup() {
     return (
         <>
             <Head title={isLogin ? 'Log In' : 'Sign Up'}>
-                <link rel="preload" href="/assets/img/LP_BG.webp" as="image" />
-                <link rel="preload" href="/assets/img/openbook.webp" as="image" />
+                <link rel="preload" href="/assets/img/LP_BG-960w.webp" as="image" />
             </Head>
-            <div
-                className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center p-2 sm:p-3"
-                style={{ backgroundImage: "url('/assets/img/LP_BG.webp')" }}
-            >
+            <div className="min-h-screen w-full flex items-center justify-center p-2 sm:p-3 relative" style={{ backgroundColor: '#5c4a3d' }}>
+                <img
+                    src="/assets/img/LP_BG.webp"
+                    srcSet="/assets/img/LP_BG-960w.webp 960w, /assets/img/LP_BG-1920w.webp 1920w"
+                    sizes="100vw"
+                    alt=""
+                    fetchPriority="high"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+                    aria-hidden
+                />
                 <div
-                    className={`relative w-fit max-w-[96vw] max-h-[96vh] flex justify-center items-center transition-opacity duration-500 ease-out ${hasFadedIn ? 'opacity-100' : 'opacity-0'}`}
+                    className={`relative z-10 w-fit max-w-[96vw] max-h-[96vh] flex justify-center items-center transition-opacity duration-500 ease-out ${hasFadedIn ? 'opacity-100' : 'opacity-0'}`}
                 >
-                    {/* Open book background - max size so only a little wood shows */}
                     <img
                         src="/assets/img/openbook.webp"
+                        srcSet="/assets/img/openbook-800w.webp 800w, /assets/img/openbook-1600w.webp 1600w"
+                        sizes="(max-width: 768px) 96vw, 90vw"
                         alt="Story book opened"
                         fetchPriority="high"
                         decoding="async"

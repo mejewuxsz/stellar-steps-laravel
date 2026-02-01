@@ -21,28 +21,29 @@ export default function Start() {
     return (
         <>
             <Head title="Stellar Steps">
-                <link rel="preload" href="/assets/img/LP_BG.webp" as="image" />
-                <link rel="preload" href="/assets/img/Book.webp" as="image" />
-                <link rel="preload" href="/assets/img/openbooktape.webp" as="image" />
-                <link rel="preload" href="/assets/img/title.webp" as="image" />
+                <link rel="preload" href="/assets/img/LP_BG-960w.webp" as="image" />
             </Head>
-            {/* Warm wood-tone fallback so content is visible before images load */}
-            <div
-                className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center transition-colors duration-300"
-                style={{
-                    backgroundColor: '#5c4a3d',
-                    backgroundImage: "url('/assets/img/LP_BG.webp')",
-                }}
-            >
+            <div className="min-h-screen w-full flex items-center justify-center relative" style={{ backgroundColor: '#5c4a3d' }}>
+                <img
+                    src="/assets/img/LP_BG.webp"
+                    srcSet="/assets/img/LP_BG-960w.webp 960w, /assets/img/LP_BG-1920w.webp 1920w"
+                    sizes="100vw"
+                    alt=""
+                    fetchPriority="high"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+                    aria-hidden
+                />
                 <button
                     type="button"
                     onClick={handleTap}
-                    className="relative outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 rounded-xl"
+                    className="relative z-10 outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 rounded-xl"
                 >
                     <div className="relative transform transition-transform duration-200 hover:scale-110">
-                        {/* Closed book image - fade in when loaded */}
                         <img
                             src="/assets/img/Book.webp"
+                            srcSet="/assets/img/Book-800w.webp 800w, /assets/img/Book-1600w.webp 1600w"
+                            sizes="(max-width: 768px) 384px, (max-width: 1024px) 512px, 672px"
                             alt="Story book"
                             fetchPriority="high"
                             decoding="async"
@@ -52,9 +53,10 @@ export default function Start() {
                             }`}
                         />
 
-                        {/* Open book image - fade in when loaded */}
                         <img
                             src="/assets/img/openbooktape.webp"
+                            srcSet="/assets/img/openbooktape-800w.webp 800w, /assets/img/openbooktape-1600w.webp 1600w"
+                            sizes="(max-width: 768px) 384px, (max-width: 1024px) 512px, 672px"
                             alt="Story book opened"
                             fetchPriority="high"
                             decoding="async"
@@ -64,9 +66,10 @@ export default function Start() {
                             }`}
                         />
 
-                        {/* Title - fade in when loaded, fades out when book opens */}
                         <img
                             src="/assets/img/title.webp"
+                            srcSet="/assets/img/title-800w.webp 800w, /assets/img/title-1600w.webp 1600w"
+                            sizes="(max-width: 768px) 75vw, (max-width: 1024px) 66vw, 50vw"
                             alt="Stellar Steps title"
                             fetchPriority="high"
                             decoding="async"
