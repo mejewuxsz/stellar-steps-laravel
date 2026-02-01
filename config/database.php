@@ -16,7 +16,8 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    // Use mysql in production when DB_HOST is set (e.g. Railway); otherwise respect DB_CONNECTION or default sqlite
+    'default' => env('DB_CONNECTION', (env('APP_ENV') === 'production' && env('DB_HOST') ? 'mysql' : 'sqlite')),
 
     /*
     |--------------------------------------------------------------------------
