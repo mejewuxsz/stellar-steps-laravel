@@ -39,6 +39,16 @@ Then run:
 
 - `php artisan migrate`
 
+### Faster first-screen load (Welcome / Start)
+
+The Welcome and Start pages show **"TAP TO OPEN"** and a warm background color **immediately**; the book and title images fade in when loaded. For even faster load, compress the first-screen assets (they are large):
+
+- **`public/assets/img/title.png`** (~6 MB) – compress with [Squoosh](https://squoosh.app) or [TinyPNG](https://tinypng.com); aim for &lt;500 KB.
+- **`public/assets/img/Book.png`** (~2.6 MB) – same; aim for &lt;400 KB.
+- **`public/assets/img/LP_BG.jpg`** (~1.8 MB) – reduce quality or dimensions; aim for &lt;400 KB.
+
+Replace the originals in `public/assets/img/` with the compressed versions and redeploy.
+
 ### Deploy on Railway
 
 The app is set up for [Railway](https://railway.app) with a Dockerfile and `railway.toml`.
