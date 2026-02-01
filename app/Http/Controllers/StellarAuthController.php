@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class StellarAuthController extends Controller
@@ -28,7 +29,7 @@ class StellarAuthController extends Controller
 
         $user = User::create([
             'name' => $request->name,
-            'email' => null,
+            'email' => 'hero.' . Str::random(20) . '@stellar.local',
             'password' => Hash::make($request->pin),
             'role' => 'hero',
             'age' => $request->age,
@@ -59,7 +60,7 @@ class StellarAuthController extends Controller
 
         $user = User::create([
             'name' => $request->name,
-            'email' => null,
+            'email' => 'guardian.' . Str::random(20) . '@stellar.local',
             'password' => Hash::make($request->pin),
             'role' => 'guardian',
             'age' => null,
