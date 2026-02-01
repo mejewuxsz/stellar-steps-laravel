@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -13,11 +14,25 @@ use Inertia\Inertia;
 class StellarAuthController extends Controller
 {
     /**
-     * Use MySQL for auth (Railway). Avoids SQLite when env/config default is wrong.
+     * Use MySQL for auth (Railway). Set default and mysql config from process env so it works even when config is cached.
      */
     private function useMysqlForAuth(): void
     {
         Config::set('database.default', 'mysql');
+        // Read from getenv() so Railway vars are used even if Laravel config was cached (env() disabled)
+        $host = getenv('DB_HOST') ?: config('database.connections.mysql.host');
+        $port = getenv('DB_PORT') ?: config('database.connections.mysql.port');
+        $database = getenv('DB_DATABASE') ?: config('database.connections.mysql.database');
+        $username = getenv('DB_USERNAME') ?: config('database.connections.mysql.username');
+        $password = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : config('database.connections.mysql.password');
+        if ($host) {
+            Config::set('database.connections.mysql.host', $host);
+            Config::set('database.connections.mysql.port', $port ?: '3306');
+            Config::set('database.connections.mysql.database', $database ?: 'railway');
+            Config::set('database.connections.mysql.username', $username ?: 'root');
+            Config::set('database.connections.mysql.password', (string) $password);
+            DB::purge('mysql'); // force reconnect with new config
+        }
     }
 
     /**
