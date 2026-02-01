@@ -6,16 +6,34 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class StellarAuthController extends Controller
 {
     /**
+     * Ensure users table has Hero/Guardian columns (migrations have run).
+     */
+    private function ensureStellarMigrationsRan(): ?\Illuminate\Http\RedirectResponse
+    {
+        if (! Schema::hasColumn('users', 'role')) {
+            return back()->withErrors([
+                'pin' => 'Database setup is incomplete. Please redeploy the app on Railway so migrations run (Settings → Redeploy), or run: php artisan migrate',
+            ]);
+        }
+        return null;
+    }
+
+    /**
      * Register a Hero (name, age, 4-digit PIN). Generates hero_code for guardian linking.
      */
     public function registerHero(Request $request)
     {
+        if ($redirect = $this->ensureStellarMigrationsRan()) {
+            return $redirect;
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'age' => 'required|string|max:50',
@@ -47,6 +65,10 @@ class StellarAuthController extends Controller
      */
     public function registerGuardian(Request $request)
     {
+        if ($redirect = $this->ensureStellarMigrationsRan()) {
+            return $redirect;
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'hero_code' => 'required|string|max:20',
@@ -78,6 +100,10 @@ class StellarAuthController extends Controller
      */
     public function login(Request $request)
     {
+        if ($redirect = $this->ensureStellarMigrationsRan()) {
+            return $redirect;
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'pin' => 'required|string|size:4|regex:/^[0-9]{4}$/',
