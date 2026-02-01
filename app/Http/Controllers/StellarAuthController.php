@@ -14,24 +14,43 @@ use Inertia\Inertia;
 class StellarAuthController extends Controller
 {
     /**
-     * Use MySQL for auth (Railway). Set default and mysql config from process env so it works even when config is cached.
+     * Read env var from multiple sources (Railway may inject via getenv, $_ENV, or .env).
+     */
+    private function getEnvVar(string $key): ?string
+    {
+        $v = getenv($key);
+        if ($v !== false && $v !== '') {
+            return $v;
+        }
+        $v = $_ENV[$key] ?? null;
+        if ($v !== null && $v !== '') {
+            return $v;
+        }
+        $v = env($key);
+        return $v !== null && $v !== '' ? $v : null;
+    }
+
+    /**
+     * Use MySQL for auth (Railway). Set default and mysql config from env so it works even when config is cached.
      */
     private function useMysqlForAuth(): void
     {
         Config::set('database.default', 'mysql');
-        // Read from getenv() so Railway vars are used even if Laravel config was cached (env() disabled)
-        $host = getenv('DB_HOST') ?: config('database.connections.mysql.host');
-        $port = getenv('DB_PORT') ?: config('database.connections.mysql.port');
-        $database = getenv('DB_DATABASE') ?: config('database.connections.mysql.database');
-        $username = getenv('DB_USERNAME') ?: config('database.connections.mysql.username');
-        $password = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : config('database.connections.mysql.password');
+        $host = $this->getEnvVar('DB_HOST') ?? config('database.connections.mysql.host');
+        $port = $this->getEnvVar('DB_PORT') ?? config('database.connections.mysql.port');
+        $database = $this->getEnvVar('DB_DATABASE') ?? config('database.connections.mysql.database');
+        $username = $this->getEnvVar('DB_USERNAME') ?? config('database.connections.mysql.username');
+        $password = $this->getEnvVar('DB_PASSWORD');
+        if ($password === null) {
+            $password = config('database.connections.mysql.password');
+        }
         if ($host) {
             Config::set('database.connections.mysql.host', $host);
             Config::set('database.connections.mysql.port', $port ?: '3306');
             Config::set('database.connections.mysql.database', $database ?: 'railway');
             Config::set('database.connections.mysql.username', $username ?: 'root');
             Config::set('database.connections.mysql.password', (string) $password);
-            DB::purge('mysql'); // force reconnect with new config
+            DB::purge('mysql');
         }
     }
 
@@ -68,12 +87,15 @@ class StellarAuthController extends Controller
 
             return redirect()->route('mainplay');
         } catch (\Throwable $e) {
-            if (str_contains($e->getMessage(), 'unable to open database file') || str_contains($e->getMessage(), 'SQLSTATE')) {
+            $msg = $e->getMessage();
+            if (str_contains($msg, 'unable to open database file')) {
                 return back()->withErrors([
                     'pin' => 'Database error. On Railway, set DB_CONNECTION=mysql and add MySQL variables (DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD), then redeploy.',
                 ]);
             }
-            throw $e;
+            // Show real DB error so we can fix it (e.g. connection refused, access denied, table not found)
+            $short = str_contains($msg, 'SQLSTATE') ? (preg_match('/SQLSTATE\[[^\]]+\]\s*([^\n]+)/', $msg, $m) ? $m[1] : substr($msg, 0, 200)) : substr($msg, 0, 200);
+            return back()->withErrors(['pin' => 'Database error: ' . $short]);
         }
     }
 
@@ -110,12 +132,14 @@ class StellarAuthController extends Controller
 
             return redirect()->route('mainplay');
         } catch (\Throwable $e) {
-            if (str_contains($e->getMessage(), 'unable to open database file') || str_contains($e->getMessage(), 'SQLSTATE')) {
+            $msg = $e->getMessage();
+            if (str_contains($msg, 'unable to open database file')) {
                 return back()->withErrors([
                     'pin' => 'Database error. On Railway, set DB_CONNECTION=mysql and add MySQL variables, then redeploy.',
                 ]);
             }
-            throw $e;
+            $short = str_contains($msg, 'SQLSTATE') ? (preg_match('/SQLSTATE\[[^\]]+\]\s*([^\n]+)/', $msg, $m) ? $m[1] : substr($msg, 0, 200)) : substr($msg, 0, 200);
+            return back()->withErrors(['pin' => 'Database error: ' . $short]);
         }
     }
 
@@ -144,12 +168,14 @@ class StellarAuthController extends Controller
 
             return redirect()->route('mainplay');
         } catch (\Throwable $e) {
-            if (str_contains($e->getMessage(), 'unable to open database file') || str_contains($e->getMessage(), 'SQLSTATE')) {
+            $msg = $e->getMessage();
+            if (str_contains($msg, 'unable to open database file')) {
                 return back()->withErrors([
                     'pin' => 'Database error. On Railway, set DB_CONNECTION=mysql and add MySQL variables, then redeploy.',
                 ]);
             }
-            throw $e;
+            $short = str_contains($msg, 'SQLSTATE') ? (preg_match('/SQLSTATE\[[^\]]+\]\s*([^\n]+)/', $msg, $m) ? $m[1] : substr($msg, 0, 200)) : substr($msg, 0, 200);
+            return back()->withErrors(['pin' => 'Database error: ' . $short]);
         }
     }
 }
