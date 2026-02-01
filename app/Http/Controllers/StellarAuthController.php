@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -13,11 +14,23 @@ use Inertia\Inertia;
 class StellarAuthController extends Controller
 {
     /**
+     * Force default DB to MySQL when MySQL env vars are present (Railway). Stops cached config from using SQLite.
+     */
+    private function useMysqlIfConfigured(): void
+    {
+        if (env('DB_HOST')) {
+            Config::set('database.default', 'mysql');
+        }
+    }
+
+    /**
      * Ensure users table has Hero/Guardian columns (migrations have run).
+     * Use mysql connection explicitly when DB_HOST is set (Railway) so we never touch SQLite.
      */
     private function ensureStellarMigrationsRan(): ?\Illuminate\Http\RedirectResponse
     {
-        if (! Schema::hasColumn('users', 'role')) {
+        $connection = env('DB_HOST') ? 'mysql' : config('database.default');
+        if (! Schema::connection($connection)->hasColumn('users', 'role')) {
             return back()->withErrors([
                 'pin' => 'Database setup is incomplete. Please redeploy the app on Railway so migrations run (Settings → Redeploy), or run: php artisan migrate',
             ]);
@@ -30,6 +43,7 @@ class StellarAuthController extends Controller
      */
     public function registerHero(Request $request)
     {
+        $this->useMysqlIfConfigured();
         if ($redirect = $this->ensureStellarMigrationsRan()) {
             return $redirect;
         }
@@ -65,6 +79,7 @@ class StellarAuthController extends Controller
      */
     public function registerGuardian(Request $request)
     {
+        $this->useMysqlIfConfigured();
         if ($redirect = $this->ensureStellarMigrationsRan()) {
             return $redirect;
         }
@@ -100,6 +115,7 @@ class StellarAuthController extends Controller
      */
     public function login(Request $request)
     {
+        $this->useMysqlIfConfigured();
         if ($redirect = $this->ensureStellarMigrationsRan()) {
             return $redirect;
         }
