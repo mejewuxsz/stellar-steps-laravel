@@ -1,6 +1,4 @@
 #!/bin/sh
-# Start Laravel for Railway: cache config if DB is available, then serve.
-# If config:cache fails (e.g. DB not ready), we still start so the app responds.
+# Start Laravel for Railway. Do not cache config so DB_CONNECTION and env vars are read at runtime.
 set -e
-php artisan config:cache 2>/dev/null || true
 exec php artisan serve --host=0.0.0.0 --port="${PORT:-8000}"

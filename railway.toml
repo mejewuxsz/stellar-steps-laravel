@@ -4,5 +4,5 @@
 builder = "dockerfile"
 
 [deploy]
-# Run migrations and cache config before each deploy
-releaseCommand = "php artisan migrate --force && php artisan config:cache"
+# Run migrations only; do not cache config so DB_CONNECTION and other env vars are read at runtime
+releaseCommand = "php artisan migrate --force"
