@@ -23,9 +23,9 @@ COPY . .
 COPY --from=frontend /app/public/build ./public/build
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+    && chown -R www-data:www-data storage bootstrap/cache database \
+    && chmod -R 775 storage bootstrap/cache database
 
 EXPOSE 8000
-# Railway sets PORT at runtime
-CMD php artisan config:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+# Railway sets PORT at runtime; shell form so $PORT is expanded when container starts
+CMD ["sh", "-c", "php artisan config:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]

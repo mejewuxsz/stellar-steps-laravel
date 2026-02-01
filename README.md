@@ -43,24 +43,35 @@ Then run:
 
 The app is set up for [Railway](https://railway.app) with a Dockerfile and `railway.toml`.
 
-1. **Create a project** at [railway.com/new](https://railway.com/new) and choose **Deploy from GitHub repo**. Select this repo.
-2. **Set Root Directory** (in the service **Settings** → **Source**) to `stellar-steps-laravel` so Railway builds from the Laravel app folder.
-3. **Add a MySQL database**: In the project, click **+ New** → **Database** → **MySQL**. Railway will set `MYSQL_URL` (or similar); you’ll map it to Laravel’s `DB_*` variables.
-4. **Variables** (Settings → Variables). Add at least:
-   - `APP_KEY` — from `php artisan key:generate --show` (run locally).
+1. **Create a project** at [railway.com/new](https://railway.com/new) and choose **Deploy from GitHub repo**. Select **mejewuxsz/stellar-steps-laravel** (or your fork). No root directory change needed — the repo root is the Laravel app.
+2. **Variables** (service **Settings** → **Variables**). Add at least:
+   - `APP_KEY` — run locally: `php artisan key:generate --show` and paste the value.
    - `APP_ENV` — `production`
    - `APP_DEBUG` — `false`
-   - `APP_URL` — your Railway URL (e.g. `https://your-app.up.railway.app`) after you generate a domain.
-   - **Database**: set `DB_CONNECTION=mysql` and either
-     - `DB_URL=${{MySQL.MYSQL_URL}}` (reference your MySQL service name), or
-     - `DB_HOST=${{MySQL.MYSQLHOST}}`, `DB_PORT=${{MySQL.MYSQLPORT}}`, `DB_DATABASE=${{MySQL.MYSQLDATABASE}}`, `DB_USERNAME=${{MySQL.MYSQLUSER}}`, `DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}`.
-   - **Logging** (recommended on Railway):
-     - `LOG_CHANNEL=stderr`
-     - `LOG_STDERR_FORMATTER=\Monolog\Formatter\JsonFormatter`
-5. **Generate a domain**: Settings → **Networking** → **Generate Domain**.
-6. **Redeploy** so `APP_URL` and DB are correct.
+   - `APP_URL` — set this **after** step 3 (e.g. `https://your-app.up.railway.app`).
+   - **Optional (recommended for production):** `LOG_CHANNEL=stderr`, `LOG_STDERR_FORMATTER=\Monolog\Formatter\JsonFormatter`
+3. **Generate a domain**: **Settings** → **Networking** → **Generate Domain**. Copy the URL and set `APP_URL` in Variables to that URL (with `https://`).
+4. **Database (choose one):**
+   - **SQLite (quick):** Leave default. Data is ephemeral (resets on redeploy). Good for a quick live demo.
+   - **MySQL (persistent):** See [Add MySQL on Railway](#add-mysql-on-railway) below.
+5. **Deploy:** Railway builds from the Dockerfile and runs migrations before each deploy via `railway.toml`. After the first successful deploy, set `APP_URL` to your generated domain and redeploy if needed.
 
-Migrations run automatically before each deploy via `railway.toml` `releaseCommand`. For queue workers or cron, add separate services and use the scripts in `railway/` (e.g. `railway/init-app.sh`).
+#### Add MySQL on Railway
+
+1. In your Railway project, click **+ New** → **Database** → **MySQL**. Railway will create a MySQL service and expose its connection variables.
+2. Click your **web service** (the Laravel app), then **Settings** → **Variables**.
+3. Add these variables (Railway will suggest linking; use the reference format so credentials stay in sync):
+
+   | Variable        | Value (replace `MySQL` with your DB service name if different) |
+   |-----------------|-----------------------------------------------------------------|
+   | `DB_CONNECTION` | `mysql`                                                         |
+   | `DB_HOST`       | `${{MySQL.MYSQLHOST}}`                                          |
+   | `DB_PORT`       | `${{MySQL.MYSQLPORT}}`                                          |
+   | `DB_DATABASE`   | `${{MySQL.MYSQLDATABASE}}`                                      |
+   | `DB_USERNAME`   | `${{MySQL.MYSQLUSER}}`                                          |
+   | `DB_PASSWORD`   | `${{MySQL.MYSQLPASSWORD}}`                                      |
+
+4. Redeploy the web service. Migrations run automatically via `railway.toml` and will use the new MySQL database.
 
 ## About Laravel
 

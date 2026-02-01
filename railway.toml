@@ -1,5 +1,4 @@
 # Railway deployment config for Stellar Steps (Laravel)
-# Set "Root Directory" to stellar-steps-laravel when deploying from repo root.
 
 [build]
 builder = "dockerfile"
