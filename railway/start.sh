@@ -1,7 +1,10 @@
 #!/bin/sh
-# Start Laravel for Railway. Migrations run in releaseCommand; here we only serve.
+# Start Laravel for Railway. Run migrations then serve (releaseCommand may not have DB).
 set -e
 php artisan config:clear 2>/dev/null || true
+echo "Running migrations..."
+php artisan migrate --force
+echo "Starting server..."
 # Railway injects PORT (e.g. 8080). Fallback for local runs.
 PORT="${PORT:-${RAILWAY_TCP_PROXY_PORT:-8000}}"
 export PORT
