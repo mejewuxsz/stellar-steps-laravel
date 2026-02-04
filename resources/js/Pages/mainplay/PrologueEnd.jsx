@@ -1,0 +1,116 @@
+import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
+
+export default function PrologueEnd() {
+    // 0: Leo only
+    // 1: Leo + Marky (welcome)
+    // 2: Leo curious right
+    // 3: Marky pose change + stars + long explanation
+    // 4: Marky back to Marky1 - "And look! You were able to clean the cover!"
+    // 5: Marky1 - "Are you ready to do your first mission Leo? Help on the Kingdom of Clutter is needed!"
+    // 6: Leo2.webp - "I'm ready. Let's go!"
+    const [step, setStep] = useState(0);
+    const narration =
+        step === 0
+            ? 'Where am I? Is this... inside of the book?'
+            : step === 1
+                ? 'Welcome, Traveler! We have been waiting for you.'
+                : step === 2
+                    ? "Waiting for me? But I'm just Leo, I'm in the first grade."
+                    : step === 3
+                        ? 'Exactly! It is only a First Grader who can correct our tales. The pages are dishevelled and the endings are lost. We must have a hero to assist us to locate the Stars of Goodness.'
+                        : step === 4
+                            ? 'And look! You were able to clean the cover!'
+                            : step === 5
+                                ? 'Are you ready to do your first mission Leo? Help on the Kingdom of Clutter is needed!'
+                                : "I'm ready. Let's go!";
+
+    return (
+        <>
+            <Head title="Prologue – End" />
+            <div className="fixed inset-0 z-[100] w-full h-full bg-white">
+                {/* Leo on the left, Marky on the right – narration UI unchanged (handled elsewhere) */}
+                {step >= 6 ? (
+                    <img
+                        src="/assets/img/Leo2.webp"
+                        alt="Leo ready"
+                        loading="eager"
+                        decoding="async"
+                        className="absolute left-[2%] bottom-[2%] w-[640px] h-auto object-contain select-none pointer-events-none"
+                    />
+                ) : step < 2 ? (
+                    <img
+                        src="/assets/img/Leo1.webp"
+                        alt="Leo"
+                        loading="eager"
+                        decoding="async"
+                        className="absolute left-[2%] bottom-[2%] w-[640px] h-auto object-contain select-none pointer-events-none"
+                    />
+                ) : (
+                    <img
+                        src="/assets/img/LeoCurious-right.png"
+                        alt="Leo thinking"
+                        loading="eager"
+                        decoding="async"
+                        className="absolute left-[2%] bottom-[2%] w-[640px] h-auto object-contain select-none pointer-events-none"
+                    />
+                )}
+                {step >= 1 && (
+                    <img
+                        src={step === 3 ? '/assets/img/Marky2-left.png' : '/assets/img/Marky1.png'}
+                        alt="Marky"
+                        loading="eager"
+                        decoding="async"
+                        className="absolute right-[2%] bottom-[18%] w-[520px] h-auto object-contain select-none pointer-events-none fade-in-soft"
+                    />
+                )}
+
+                {/* Three gray stars at the very top for the Stars of Goodness moment - only show in steps 3 and 4 */}
+                {step >= 3 && step < 5 && (
+                    <div className="absolute left-1/2 top-[4%] -translate-x-1/2 flex gap-8">
+                        <img
+                            src="/assets/img/Graystar.webp"
+                            alt="Star of Goodness"
+                            className="w-[200px] h-[200px] object-contain select-none pointer-events-none drop-shadow-xl"
+                        />
+                        <img
+                            src="/assets/img/Graystar.webp"
+                            alt="Star of Goodness"
+                            className="w-[240px] h-[240px] object-contain select-none pointer-events-none drop-shadow-xl"
+                        />
+                        <img
+                            src="/assets/img/Graystar.webp"
+                            alt="Star of Goodness"
+                            className="w-[200px] h-[200px] object-contain select-none pointer-events-none drop-shadow-xl"
+                        />
+                    </div>
+                )}
+
+                {/* Narration bar – same style as other scenes */}
+                <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8">
+                    <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20">
+                        <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow">
+                            {narration}
+                        </div>
+                        <div className="mt-4 flex justify-end">
+                            <button
+                                type="button"
+                                className="cartoon-thin px-5 py-2 rounded-xl bg-yellow-300 text-black font-bold hover:bg-yellow-200 transition-colors"
+                                onClick={() => {
+                                    if (step < 6) {
+                                        setStep((s) => s + 1);
+                                    } else {
+                                        router.visit(route('mainplay', { prologue_castle_hint: 1 }));
+                                    }
+                                }}
+                            >
+                                {step >= 6 ? "Let's go!" : 'Next'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}
+

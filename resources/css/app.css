@@ -200,3 +200,43 @@ input:focus {
     background-size: 100% 3px;
     padding-bottom: 4px;
 }
+
+/* Gentle and strong book/title shaking in prologue2 attic */
+@keyframes tilt-n-move-shaking {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(5px, 5px) rotate(5deg); }
+    50% { transform: translate(0, 0) rotate(0deg); }
+    75% { transform: translate(-5px, 5px) rotate(-5deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+.gentle-tilt-move-shake {
+    animation: tilt-n-move-shaking 0.25s infinite;
+}
+.strong-tilt-move-shake {
+    animation: tilt-n-move-shaking 0.15s infinite;
+}
+
+@keyframes white-fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+.white-fade-in {
+    animation: white-fade-in 0.8s ease-out forwards;
+}
+
+/* Slow scale-up used while the book is shaking in prologue2 attic */
+@keyframes scale-up-slow {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.15); }
+}
+.scale-up-slow {
+    animation: scale-up-slow 5s ease-out forwards;
+}
+
+@keyframes fade-in-soft {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+.fade-in-soft {
+    animation: fade-in-soft 0.6s ease-out forwards;
+}

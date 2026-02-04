@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 
 const WOOD_BG = '/assets/img/LP_BG.webp';
 
-// Simple two-step prologue intro:
-// 1) Attic background with Stellar Steps title and prologue subtitle
-// 2) Black screen with big Leo and first narration line, then Next → prologue1-attic
+// Simple two-step chapter 1 intro:
+// 1) Wooden background with Stellar Steps title and chapter 1 subtitle
+// 2) Black screen with big Leo and first narration line, then Next → chapter 1 gameplay
 
-export default function PrologueIntro() {
+export default function Chapter1Intro() {
     const [phase, setPhase] = useState('title'); // 'title' | 'leo';
 
     useEffect(() => {
@@ -21,7 +21,7 @@ export default function PrologueIntro() {
 
     return (
         <>
-            <Head title="Prologue: The Secret in the Attic" />
+            <Head title="Chapter 1: The Kingdom of Clutter" />
             <div
                 className="fixed inset-0 z-[100] w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{ backgroundImage: `url('${encodeURI(WOOD_BG)}')` }}
@@ -37,7 +37,7 @@ export default function PrologueIntro() {
                                 className="w-[78vw] max-w-[880px] drop-shadow-2xl"
                             />
                             <div className="cartoon-thin text-white text-2xl sm:text-3xl md:text-4xl text-center drop-shadow-lg">
-                                Prologue: The Secret in the Attic
+                                Chapter 1: The Kingdom of Clutter
                             </div>
                         </div>
                     </div>
@@ -45,30 +45,16 @@ export default function PrologueIntro() {
 
                 {phase === 'leo' && (
                     <>
+                        {/* Pure black screen, no Leo or narration box – only a Next button to continue */}
                         <div className="absolute inset-0 bg-black" aria-hidden />
-                        <img
-                            src="/assets/img/Leo0.png"
-                            alt="Leo waving hello"
-                            loading="eager"
-                            decoding="async"
-                            className="absolute inset-0 m-auto w-[min(85vw,800px)] h-auto object-contain pointer-events-none"
-                            aria-hidden
-                        />
-                        <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8">
-                            <div className="mx-auto max-w-4xl rounded-2xl bg-black/55 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/15">
-                                <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow">
-                                    {firstLine}
-                                </div>
-                                <div className="mt-4 flex justify-end">
-                                    <button
-                                        type="button"
-                                        className="cartoon-thin px-5 py-2 rounded-xl bg-yellow-300 text-black font-bold hover:bg-yellow-200 transition-colors"
-                                        onClick={() => router.visit(route('mainplay.prologue1-attic'))}
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="absolute right-6 sm:right-10 bottom-6 sm:bottom-8">
+                            <button
+                                type="button"
+                                className="cartoon-thin px-5 py-2 rounded-xl bg-yellow-300 text-black font-bold hover:bg-yellow-200 transition-colors"
+                                onClick={() => router.visit(route('mainplay.chapter1'))}
+                            >
+                                Next
+                            </button>
                         </div>
                     </>
                 )}
@@ -76,4 +62,3 @@ export default function PrologueIntro() {
         </>
     );
 }
-

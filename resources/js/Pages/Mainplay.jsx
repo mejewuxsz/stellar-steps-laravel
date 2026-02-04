@@ -110,7 +110,9 @@ const STAGE_ILLUSTRATIONS = [
 ];
 
 export default function Mainplay() {
-    const { auth } = usePage().props || {};
+    const page = usePage();
+    const { auth } = page.props || {};
+    const fromPrologueCastleHint = page.url?.includes('prologue_castle_hint=1');
     const user = auth?.user ?? null;
     const [scale, setScale] = useState(getLayoutScale);
     const [showProfileExtension, setShowProfileExtension] = useState(false);
@@ -135,6 +137,11 @@ export default function Mainplay() {
             router.visit(route('mainplay.prologue-intro'));
             return;
         }
+        // Stage 2 (Castle/Chapter 1): both Play and Replay go to the Chapter 1 intro page
+        if (stageIndex === 1 && (state === 1 || state === 2)) {
+            router.visit(route('mainplay.chapter1-intro'));
+            return;
+        }
         if (state !== 1) return; // for other stages, only Play clears
         setClearedStages((prev) => {
             const next = [...prev];
@@ -148,6 +155,17 @@ export default function Mainplay() {
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
     }, []);
+
+    // If we came back from the prologue end "Let's go!" screen, mark Stage 1 as cleared
+    // so the castle stage becomes playable and we can show a gentle hint.
+    useEffect(() => {
+        if (!fromPrologueCastleHint) return;
+        setClearedStages((prev) => {
+            const next = [...prev];
+            next[0] = true;
+            return next;
+        });
+    }, [fromPrologueCastleHint]);
 
     function toggleProfileExtension() {
         if (showProfileExtension && !profileClosing) {

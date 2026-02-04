@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
 const STAGE_1_BG_2 = '/assets/img/Attic Background -20260201T170631Z-3-001/Attic Background/attic2.webp';
@@ -36,6 +36,10 @@ export default function Stage2Attic() {
     const [showDirtyBook, setShowDirtyBook] = useState(false);
     const [showPostClickNarration, setShowPostClickNarration] = useState(false);
     const [postClickStep, setPostClickStep] = useState(0); // 0: dirty cover text, 1: wipe direction
+    const [heroCongratsVisible, setHeroCongratsVisible] = useState(false);
+    const [heroCongratsStep, setHeroCongratsStep] = useState(0); // 0: Well done, 1: book shakes text
+    const [shakePhase, setShakePhase] = useState('none'); // 'none' | 'gentle' | 'strong'
+    const [fadeToWhite, setFadeToWhite] = useState(false);
     const dirtCanvasRef = useRef(null);
     const isWipingRef = useRef(false);
     const [wipeProgress, setWipeProgress] = useState(0);
@@ -63,17 +67,7 @@ export default function Stage2Attic() {
             canvas.height = img.height;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over';
-            // Draw the dirt slightly zoomed in so the soft transparent edge
-            // never shows as a hard square border around the book.
-            const paddingX = canvas.width * 0.08;
-            const paddingY = canvas.height * 0.08;
-            ctx.drawImage(
-                img,
-                -paddingX,
-                -paddingY,
-                canvas.width + paddingX * 2,
-                canvas.height + paddingY * 2
-            );
+            ctx.drawImage(img, 0, 0);
         };
     }, [showDirtyBook]);
 
@@ -98,10 +92,33 @@ export default function Stage2Attic() {
 
         const progress = Math.min(100, Math.round((clearedPixels / totalPixels) * 100));
         setWipeProgress(progress);
+        if (progress >= 90 && !heroCongratsVisible && shakePhase === 'none') {
+            setHeroCongratsVisible(true);
+            setHeroCongratsStep(0);
+        }
         if (progress >= 100) {
             setWipeComplete(true);
         }
     }
+
+    // After "Well done, Hero!" narration, make the book shake gently, then stronger.
+    useEffect(() => {
+        if (shakePhase !== 'gentle') return;
+        const t = setTimeout(() => setShakePhase('strong'), 1200);
+        return () => clearTimeout(t);
+    }, [shakePhase]);
+
+    // When shaking strongly, wait 3 seconds, fade to white, then navigate to prologue-end.
+    useEffect(() => {
+        if (shakePhase !== 'strong') return;
+        const t = setTimeout(() => {
+            setFadeToWhite(true);
+            setTimeout(() => {
+                router.visit(route('mainplay.prologue-end'));
+            }, 800);
+        }, 3000);
+        return () => clearTimeout(t);
+    }, [shakePhase]);
 
     return (
         <>
@@ -120,6 +137,43 @@ export default function Stage2Attic() {
                     }}
                     aria-hidden
                 />
+                {/* Extra darkening during hero congrats, shaking, and fade-out */}
+                {(heroCongratsVisible || shakePhase !== 'none' || fadeToWhite) && (
+                    <div className="absolute inset-0 bg-black/70 pointer-events-none" aria-hidden />
+                )}
+                {/* Fade-to-white overlay at the very end before transitioning */}
+                {fadeToWhite && (
+                    <div className="absolute inset-0 bg-white white-fade-in z-[130]" aria-hidden />
+                )}
+
+                {/* Hero congrats overlay after most of the dirt is wiped – uses the same narration style */}
+                {heroCongratsVisible && (
+                    <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[120]">
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20">
+                            <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow">
+                                {heroCongratsStep === 0
+                                    ? 'Well done, Hero!'
+                                    : 'The Book suddenly shakes! Rumble... Rumble... The Book suddenly opens.'}
+                            </div>
+                            <div className="mt-4 flex justify-end">
+                                <button
+                                    type="button"
+                                    className="cartoon-thin px-5 py-2 rounded-xl bg-yellow-300 text-black font-bold hover:bg-yellow-200 transition-colors"
+                                    onClick={() => {
+                                        if (heroCongratsStep === 0) {
+                                            setHeroCongratsStep(1);
+                                            setShakePhase('gentle');
+                                        } else {
+                                            setHeroCongratsVisible(false);
+                                        }
+                                    }}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {/* Leo – appears on the right for first narration, then on the left (Leo1-left) for "Oh... over... there." */}
                 {!showDirtyBook && (
                     <img
@@ -148,7 +202,16 @@ export default function Stage2Attic() {
                 {/* Dirty book covers the center after click: original title book art with erasable dirt overlay */}
                 {showDirtyBook && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="relative w-[min(80vw,520px)]">
+                        <div className={shakePhase !== 'none' ? 'scale-up-slow' : ''}>
+                            <div
+                                className={`relative w-[min(80vw,520px)] ${
+                                    shakePhase === 'gentle'
+                                        ? 'gentle-tilt-move-shake'
+                                        : shakePhase === 'strong'
+                                            ? 'strong-tilt-move-shake'
+                                            : ''
+                                }`}
+                            >
                             {/* Base book from the opening scene */}
                             <img
                                 src="/assets/img/Book.webp"
@@ -211,6 +274,7 @@ export default function Stage2Attic() {
                                     updateWipeProgress();
                                 }}
                             />
+                            </div>
                         </div>
                     </div>
                 )}
