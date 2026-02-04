@@ -113,6 +113,7 @@ export default function Mainplay() {
     const page = usePage();
     const { auth } = page.props || {};
     const fromPrologueCastleHint = page.url?.includes('prologue_castle_hint=1');
+    const fromChapter1Complete = page.url?.includes('chapter1_complete=1');
     const user = auth?.user ?? null;
     const [scale, setScale] = useState(getLayoutScale);
     const [showProfileExtension, setShowProfileExtension] = useState(false);
@@ -167,6 +168,17 @@ export default function Mainplay() {
         });
     }, [fromPrologueCastleHint]);
 
+    // If we came back from kingdom-complete-star "Back to the Map", mark prologue and Chapter 1 (castle) as completed.
+    useEffect(() => {
+        if (!fromChapter1Complete) return;
+        setClearedStages((prev) => {
+            const next = [...prev];
+            next[0] = true; // Prologue (required to reach Chapter 1)
+            next[1] = true; // Stage 2 = castle = Chapter 1
+            return next;
+        });
+    }, [fromChapter1Complete]);
+
     function toggleProfileExtension() {
         if (showProfileExtension && !profileClosing) {
             setProfileClosing(true);
@@ -218,7 +230,7 @@ export default function Mainplay() {
                         className="main-nav relative z-30 flex-shrink-0 flex items-center justify-center gap-3 sm:gap-4 w-full pt-0 pb-2 sm:pb-3 px-2 sm:px-4 min-h-[148px] sm:min-h-[164px] -mt-1 animate-slide-down-in"
                     >
                     {(tabsStatic.map((tab) => {
-                        if (tab.id === 'stars') return { ...tab, content: <StarsTabContent /> };
+                        if (tab.id === 'stars') return { ...tab, content: <StarsTabContent goldStarCount={clearedStages[1] ? 1 : 0} /> };
                         if (tab.id === 'menu' && (showWoodenSign || woodenSignClosing)) {
                             return { ...tab, content: <Undo2 className="w-[5.5rem] h-[5.5rem] sm:w-[6rem] sm:h-[6rem] text-white animate-glow-blink group-hover:animate-none group-hover:opacity-100 [filter:drop-shadow(0_0_4px_#fef08a)_drop-shadow(0_0_12px_#facc15)_drop-shadow(0_0_24px_#eab308)]" aria-hidden /> };
                         }

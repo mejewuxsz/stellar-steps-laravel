@@ -51,6 +51,30 @@ Route::get('/mainplay/chapter1', function () {
     return Inertia::render('mainplay/Chapter1');
 })->name('mainplay.chapter1');
 
+Route::get('/mainplay/kingdom1', function () {
+    return Inertia::render('mainplay/Kingdom1');
+})->name('mainplay.kingdom1');
+
+Route::get('/mainplay/kingdom2', function () {
+    return Inertia::render('mainplay/Kingdom2');
+})->name('mainplay.kingdom2');
+
+Route::get('/mainplay/kingdom3', function () {
+    return Inertia::render('mainplay/Kingdom3');
+})->name('mainplay.kingdom3');
+
+Route::get('/mainplay/kingdom-end', function () {
+    return Inertia::render('mainplay/KingdomEnd');
+})->name('mainplay.kingdom-end');
+
+Route::get('/mainplay/kingdom-complete', function () {
+    return Inertia::render('mainplay/KingdomComplete');
+})->name('mainplay.kingdom-complete');
+
+Route::get('/mainplay/kingdom-complete-star', function () {
+    return Inertia::render('mainplay/KingdomCompleteStar');
+})->name('mainplay.kingdom-complete-star');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

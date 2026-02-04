@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 
 const WOOD_BG = '/assets/img/LP_BG.webp';
 
-// Simple two-step chapter 1 intro:
+// Two-step chapter 1 intro:
 // 1) Wooden background with Stellar Steps title and chapter 1 subtitle
-// 2) Black screen with big Leo and first narration line, then Next → chapter 1 gameplay
+// 2) Black screen with falling Leo → navigate to kingdom1 right away after fall
 
 export default function Chapter1Intro() {
-    const [phase, setPhase] = useState('title'); // 'title' | 'leo';
+    const [phase, setPhase] = useState('title'); // 'title' | 'leo'
 
     useEffect(() => {
         if (phase !== 'title') return;
@@ -16,16 +16,24 @@ export default function Chapter1Intro() {
         return () => clearTimeout(t);
     }, [phase]);
 
-    const firstLine =
-        'This is Leo. Leo loves adventures. He likes tree climbing, collecting shiny rocks, and puzzles. Still, Leo has never had a bigger adventure than he has today: The Attic.';
+    useEffect(() => {
+        if (phase !== 'leo') return;
+        // After fall animation completes (2s), go right away to kingdom1
+        const t = setTimeout(() => {
+            router.visit(route('mainplay.kingdom1'));
+        }, 2000);
+        return () => clearTimeout(t);
+    }, [phase]);
 
     return (
         <>
             <Head title="Chapter 1: The Kingdom of Clutter" />
-            <div
-                className="fixed inset-0 z-[100] w-full h-full bg-cover bg-center bg-no-repeat"
-                style={{ backgroundImage: `url('${encodeURI(WOOD_BG)}')` }}
-            >
+            <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <div
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat fade-in-soft"
+                    style={{ backgroundImage: `url('${encodeURI(WOOD_BG)}')` }}
+                    aria-hidden
+                />
                 {phase === 'title' && (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="relative flex flex-col items-center gap-6">
@@ -45,17 +53,15 @@ export default function Chapter1Intro() {
 
                 {phase === 'leo' && (
                     <>
-                        {/* Pure black screen, no Leo or narration box – only a Next button to continue */}
                         <div className="absolute inset-0 bg-black" aria-hidden />
-                        <div className="absolute right-6 sm:right-10 bottom-6 sm:bottom-8">
-                            <button
-                                type="button"
-                                className="cartoon-thin px-5 py-2 rounded-xl bg-yellow-300 text-black font-bold hover:bg-yellow-200 transition-colors"
-                                onClick={() => router.visit(route('mainplay.chapter1'))}
-                            >
-                                Next
-                            </button>
-                        </div>
+                        <img
+                            src="/assets/img/C1F2-Leo.png"
+                            alt="Leo falling"
+                            loading="eager"
+                            decoding="async"
+                            className="absolute top-0 left-1/2 w-[min(85vw,1000px)] h-auto object-contain pointer-events-none fall-down"
+                            aria-hidden
+                        />
                     </>
                 )}
             </div>
