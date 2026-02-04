@@ -119,10 +119,7 @@ export default function Mainplay() {
     const [woodenSignClosing, setWoodenSignClosing] = useState(false);
     /** Which stages are cleared (1–5). Cleared = illustration shows C, button shows Replay. */
     const [clearedStages, setClearedStages] = useState([false, false, false, false, false]);
-    /** Stage 1: when true, show full-screen attic background overlay. */
-    const [showStage1FullScreen, setShowStage1FullScreen] = useState(false);
-    /** Stage 1 overlay sequence: 'dark' → 'text' (title fades in) → 'revealed' (dark fades out). */
-    const [stage1OverlayPhase, setStage1OverlayPhase] = useState('dark');
+    // Prologue intro now lives at /mainplay/prologue-intro (separate page)
 
     /** Button state for stage index (0–4): 0 Locked, 1 Play, 2 Replay. Stage 1 is always Play or Replay. */
     function getStageButtonState(stageIndex) {
@@ -133,9 +130,9 @@ export default function Mainplay() {
 
     function onStageButtonClick(stageIndex) {
         const state = getStageButtonState(stageIndex);
-        // Stage 1: both Play and Replay show the full-screen attic image
+        // Stage 1 (Prologue): both Play and Replay go to the Prologue intro page
         if (stageIndex === 0 && (state === 1 || state === 2)) {
-            setShowStage1FullScreen(true);
+            router.visit(route('mainplay.prologue-intro'));
             return;
         }
         if (state !== 1) return; // for other stages, only Play clears
@@ -145,25 +142,6 @@ export default function Mainplay() {
             return next;
         });
     }
-
-    function closeStage1FullScreen() {
-        setShowStage1FullScreen(false);
-        setStage1OverlayPhase('dark');
-        setClearedStages((prev) => {
-            const next = [...prev];
-            next[0] = true;
-            return next;
-        });
-    }
-
-    // Stage 1 overlay sequence: start dark → show title → reveal image
-    useEffect(() => {
-        if (!showStage1FullScreen) return;
-        setStage1OverlayPhase('dark');
-        const t1 = setTimeout(() => setStage1OverlayPhase('text'), 400);
-        const t2 = setTimeout(() => setStage1OverlayPhase('revealed'), 1800);
-        return () => { clearTimeout(t1); clearTimeout(t2); };
-    }, [showStage1FullScreen]);
 
     useEffect(() => {
         const onResize = () => setScale(getLayoutScale());
@@ -202,43 +180,6 @@ export default function Mainplay() {
     return (
         <>
             <Head title="Main Play" />
-            {/* Stage 1 full-screen attic background – shown when Play/Replay is clicked; fade-in: dark → title → reveal */}
-            {showStage1FullScreen && (
-                <div
-                    className="fixed inset-0 z-[100] w-full h-full bg-cover bg-center bg-no-repeat cursor-pointer"
-                    style={{ backgroundImage: `url('${encodeURI(STAGE_1_FULLSCREEN_BG)}')` }}
-                    onClick={closeStage1FullScreen}
-                    role="button"
-                    tabIndex={0}
-                    aria-label="Close stage view"
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') closeStage1FullScreen(); }}
-                >
-                    {/* Dark overlay: opaque at start, fades out when phase is 'revealed' */}
-                    <div
-                        className="absolute inset-0 bg-black transition-opacity duration-[1800ms] ease-out pointer-events-none"
-                        style={{ opacity: stage1OverlayPhase === 'revealed' ? 0 : 1 }}
-                        aria-hidden
-                    />
-                    {/* Center title: fades in when phase is 'text' or 'revealed' */}
-                    <div
-                        className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                        aria-hidden
-                    >
-                        <span
-                            className="cartoon-heading text-white text-4xl sm:text-5xl md:text-6xl text-center drop-shadow-lg transition-opacity duration-500 ease-out"
-                            style={{
-                                opacity: stage1OverlayPhase === 'dark' ? 0 : 1,
-                                textShadow: '0 0 20px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.6)',
-                            }}
-                        >
-                            Stage 1: The Attic
-                        </span>
-                    </div>
-                    <div className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 text-white text-2xl hover:bg-black/60 transition-colors pointer-events-auto" onClick={(e) => { e.stopPropagation(); closeStage1FullScreen(); }} aria-label="Close">
-                        ×
-                    </div>
-                </div>
-            )}
             <div
                 className="relative w-full h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
                 style={{ backgroundImage: "url('/assets/img/LP_BG.webp')" }}

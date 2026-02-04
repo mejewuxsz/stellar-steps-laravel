@@ -27,6 +27,18 @@ Route::get('/mainplay', function () {
     return Inertia::render('Mainplay');
 })->name('mainplay');
 
+Route::get('/mainplay/prologue-intro', function () {
+    return Inertia::render('mainplay/PrologueIntro');
+})->name('mainplay.prologue-intro');
+
+Route::get('/mainplay/prologue1-attic', function () {
+    return Inertia::render('mainplay/Stage1Attic');
+})->name('mainplay.prologue1-attic');
+
+Route::get('/mainplay/prologue1-attic/prologue2-attic', function () {
+    return Inertia::render('mainplay/Stage2Attic');
+})->name('mainplay.prologue1-attic.prologue2-attic');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
