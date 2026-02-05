@@ -47,6 +47,10 @@ Route::get('/mainplay/chapter1-intro', function () {
     return Inertia::render('mainplay/Chapter1Intro');
 })->name('mainplay.chapter1-intro');
 
+Route::get('/mainplay/chapter2-intro', function () {
+    return Inertia::render('mainplay/Chapter2Intro');
+})->name('mainplay.chapter2-intro');
+
 Route::get('/mainplay/chapter1', function () {
     return Inertia::render('mainplay/Chapter1');
 })->name('mainplay.chapter1');
@@ -62,6 +66,18 @@ Route::get('/mainplay/kingdom2', function () {
 Route::get('/mainplay/kingdom3', function () {
     return Inertia::render('mainplay/Kingdom3');
 })->name('mainplay.kingdom3');
+
+Route::get('/mainplay/whisper1', function () {
+    return Inertia::render('mainplay/Whisper1');
+})->name('mainplay.whisper1');
+
+Route::get('/mainplay/whisper2', function () {
+    return Inertia::render('mainplay/Whisper2');
+})->name('mainplay.whisper2');
+
+Route::get('/mainplay/whisper3', function () {
+    return Inertia::render('mainplay/Whisper3');
+})->name('mainplay.whisper3');
 
 Route::get('/mainplay/kingdom-end', function () {
     return Inertia::render('mainplay/KingdomEnd');

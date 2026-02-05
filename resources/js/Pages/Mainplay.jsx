@@ -143,6 +143,11 @@ export default function Mainplay() {
             router.visit(route('mainplay.chapter1-intro'));
             return;
         }
+        // Stage 3 (Woods/Chapter 2): both Play and Replay go to the Chapter 2 intro page
+        if (stageIndex === 2 && (state === 1 || state === 2)) {
+            router.visit(route('mainplay.chapter2-intro'));
+            return;
+        }
         if (state !== 1) return; // for other stages, only Play clears
         setClearedStages((prev) => {
             const next = [...prev];
