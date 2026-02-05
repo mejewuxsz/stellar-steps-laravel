@@ -216,6 +216,22 @@ input:focus {
     animation: tilt-n-move-shaking 0.15s infinite;
 }
 
+/* Subtle shake that only runs twice (e.g. branches in Whisper3) */
+.shake-twice-soft {
+    animation: tilt-n-move-shaking 0.28s ease-out 0s 2;
+}
+
+/* Subtle shake burst a bit faster (slightly quicker wiggle, still idle between shakes) */
+@keyframes shake-twice-soft-loop {
+    0%, 55%, 100% { transform: translate(0, 0) rotate(0deg); }
+    8%, 24% { transform: translate(5px, 5px) rotate(4deg); }
+    16%, 32% { transform: translate(-5px, 5px) rotate(-4deg); }
+    40% { transform: translate(0, 0) rotate(0deg); }
+}
+.shake-twice-soft-loop {
+    animation: shake-twice-soft-loop 3s ease-out infinite;
+}
+
 @keyframes white-fade-in {
     0% { opacity: 0; }
     100% { opacity: 1; }
