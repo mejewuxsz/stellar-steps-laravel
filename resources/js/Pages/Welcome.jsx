@@ -20,7 +20,7 @@ export default function Welcome() {
                     srcSet="/assets/img/LP_BG-960w.webp 960w, /assets/img/LP_BG-1920w.webp 1920w"
                     sizes="100vw"
                     alt=""
-                    fetchPriority="high"
+                    fetchpriority="high"
                     decoding="async"
                     className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
                     aria-hidden
@@ -36,7 +36,7 @@ export default function Welcome() {
                             srcSet="/assets/img/Book-800w.webp 800w, /assets/img/Book-1600w.webp 1600w"
                             sizes="(max-width: 768px) 384px, (max-width: 1024px) 512px, 672px"
                             alt="Story book"
-                            fetchPriority="high"
+                            fetchpriority="high"
                             decoding="async"
                             onLoad={() => setBookLoaded(true)}
                             className={`max-w-sm md:max-w-lg lg:max-w-2xl drop-shadow-2xl pointer-events-none select-none transition-opacity duration-500 ${bookLoaded ? 'opacity-100' : 'opacity-0'}`}
@@ -47,7 +47,7 @@ export default function Welcome() {
                             srcSet="/assets/img/title-800w.webp 800w, /assets/img/title-1600w.webp 1600w"
                             sizes="(max-width: 768px) 75vw, (max-width: 1024px) 66vw, 50vw"
                             alt="Stellar Steps title"
-                            fetchPriority="high"
+                            fetchpriority="high"
                             decoding="async"
                             onLoad={() => setTitleLoaded(true)}
                             className={`pointer-events-none select-none absolute top-[18%] left-1/2 -translate-x-[40%] w-3/4 md:w-2/3 title-logo-glow transition-opacity duration-500 ${titleLoaded ? 'opacity-100' : 'opacity-0'}`}

@@ -204,7 +204,7 @@ export default function Signup() {
                     srcSet="/assets/img/LP_BG-960w.webp 960w, /assets/img/LP_BG-1920w.webp 1920w"
                     sizes="100vw"
                     alt=""
-                    fetchPriority="high"
+                    fetchpriority="high"
                     decoding="async"
                     className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
                     aria-hidden
@@ -217,7 +217,7 @@ export default function Signup() {
                         srcSet="/assets/img/openbook-800w.webp 800w, /assets/img/openbook-1600w.webp 1600w"
                         sizes="(max-width: 768px) 96vw, 90vw"
                         alt="Story book opened"
-                        fetchPriority="high"
+                        fetchpriority="high"
                         decoding="async"
                         className="max-h-[96vh] max-w-[96vw] w-auto h-auto object-contain drop-shadow-2xl pointer-events-none select-none block"
                     />

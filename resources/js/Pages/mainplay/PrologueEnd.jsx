@@ -1,7 +1,11 @@
 import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
+import BackToMapButton from '@/Components/BackToMapButton';
+import { useState, useEffect } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
 
 export default function PrologueEnd() {
+    const { playVoice, stopVoice, stopBGM } = useAudio() ?? {};
     // 0: Leo only
     // 1: Leo + Marky (welcome)
     // 2: Leo curious right
@@ -27,10 +31,20 @@ export default function PrologueEnd() {
     
     const speaker = step === 0 || step === 2 || step === 6 ? 'LEO' : 'MARKY';
 
+    useEffect(() => {
+        stopBGM?.();
+    }, [stopBGM]);
+
+    useEffect(() => {
+        const src = AUDIO.prologueEnd?.voice?.[step];
+        if (src && playVoice) playVoice(src);
+    }, [step, playVoice]);
+
     return (
         <>
             <Head title="Prologue – End" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-white">
+                <BackToMapButton />
                 {/* Leo on the left, Marky on the right – narration UI unchanged (handled elsewhere) */}
                 {step >= 6 ? (
                     <img
@@ -50,7 +64,7 @@ export default function PrologueEnd() {
                     />
                 ) : (
                     <img
-                        src="/assets/img/LeoCurious-right.png"
+                        src="/assets/img/LeoCurious-right.webp"
                         alt="Leo thinking"
                         loading="eager"
                         decoding="async"
@@ -59,7 +73,7 @@ export default function PrologueEnd() {
                 )}
                 {step >= 1 && (
                     <img
-                        src={step === 3 ? '/assets/img/Marky2-left.png' : '/assets/img/Marky1.png'}
+                        src={step === 3 ? '/assets/img/Marky2-left.webp' : '/assets/img/Marky1.webp'}
                         alt="Marky"
                         loading="eager"
                         decoding="async"
@@ -96,20 +110,21 @@ export default function PrologueEnd() {
                                 {speaker}
                             </div>
                             <div className="h-px bg-white/30 mb-2" aria-hidden />
-                            <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                            <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                 {narration}
                             </div>
                         </div>
                         <button
                             type="button"
                             className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                            onClick={() => {
-                                if (step < 6) {
-                                    setStep((s) => s + 1);
-                                } else {
-                                    router.visit(route('mainplay', { prologue_castle_hint: 1 }));
-                                }
-                            }}
+onClick={() => {
+                                    if (step < 6) {
+                                        stopVoice?.();
+                                        setStep((s) => s + 1);
+                                    } else {
+                                        router.visit(route('mainplay', { prologue_castle_hint: 1 }));
+                                    }
+                                }}
                             aria-label={step >= 6 ? "Let's go!" : 'Next'}
                         >
                             <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

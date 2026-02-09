@@ -24,6 +24,8 @@ class User extends Authenticatable
         'role',
         'age',
         'hero_code',
+        'stages_completed',
+        'gold_stars',
     ];
 
     /**
@@ -63,6 +65,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'stages_completed' => 'array',
         ];
     }
 }

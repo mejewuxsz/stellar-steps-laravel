@@ -1,9 +1,17 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
 import { useState, useEffect } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
 
 export default function KingdomCompleteStar() {
+    const { playSFX } = useAudio() ?? {};
     // 0: all grey, 1: first turning yellow (fade-in), 2: rotating, 3: text only, 4: button only
     const [phase, setPhase] = useState(0);
+
+    useEffect(() => {
+        if (phase === 2) playSFX?.(AUDIO.sfx.starClick);
+    }, [phase, playSFX]);
 
     useEffect(() => {
         if (phase === 0) {
@@ -39,6 +47,7 @@ export default function KingdomCompleteStar() {
         <>
             <Head title="Chapter 1: Stars Collected" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 {/* Black overlay that fades out */}
                 <div className="absolute inset-0 bg-black fade-out-black pointer-events-none" />
                 {/* Background */}
@@ -95,30 +104,47 @@ export default function KingdomCompleteStar() {
 
                 {/* Stars collected text - show from phase 3 onwards */}
                 {phase >= 3 && (
-                    <p className="absolute left-1/2 top-[55%] -translate-x-1/2 cartoon-thin text-white text-3xl sm:text-4xl font-semibold text-center" style={{
+                    <p className="absolute left-1/2 top-[55%] -translate-x-1/2 cartoon-thin narration-text text-white text-3xl sm:text-4xl font-semibold text-center" style={{
                         textShadow: '1px 1px 2px rgba(0,0,0,0.6), -1px -1px 2px rgba(0,0,0,0.6), 1px -1px 2px rgba(0,0,0,0.6), -1px 1px 2px rgba(0,0,0,0.6), 0px 1px 2px rgba(0,0,0,0.6), 0px -1px 2px rgba(0,0,0,0.6), 1px 0px 2px rgba(0,0,0,0.6), -1px 0px 2px rgba(0,0,0,0.6)'
                     }}>
                         1/3 Stars Collected.
                     </p>
                 )}
 
-                {/* Back to the Map - same style as TAP TO OPEN, show only in phase 4 */}
+                {/* Back to the Map (left) + Proceed to Next (right) - show only in phase 4 */}
                 {phase === 4 && (
-                    <button
-                        onClick={() => router.visit(route('mainplay', { chapter1_complete: 1 }))}
-                        className="absolute left-1/2 bottom-12 sm:bottom-16 -translate-x-1/2 outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 rounded-xl cursor-pointer bg-transparent border-none p-0"
-                    >
-                        <span
-                            className="inline-block rounded-sans tracking-tight text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-yellow-300 animate-pulse transform transition-transform duration-200 hover:scale-110 fade-in-soft"
-                            style={{
-                                textShadow: '0 0 8px rgba(250,250,150,0.9), 0 0 18px rgba(250,250,150,0.7)',
-                                WebkitTextStroke: '1px rgba(253, 224, 71, 0.8)',
-                                paintOrder: 'stroke fill'
-                            }}
+                    <div className="absolute left-4 right-4 sm:left-8 sm:right-8 bottom-12 sm:bottom-16 flex items-center justify-between gap-4">
+                        <button
+                            onClick={() => router.visit(route('mainplay', { chapter1_complete: 1 }))}
+                            className="outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 rounded-xl cursor-pointer bg-transparent border-none p-0"
                         >
-                            Back to the Map
-                        </span>
-                    </button>
+                            <span
+                                className="inline-block rounded-sans tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-yellow-300 animate-pulse transform transition-transform duration-200 hover:scale-110 fade-in-soft"
+                                style={{
+                                    textShadow: '0 0 8px rgba(250,250,150,0.9), 0 0 18px rgba(250,250,150,0.7)',
+                                    WebkitTextStroke: '1px rgba(253, 224, 71, 0.8)',
+                                    paintOrder: 'stroke fill'
+                                }}
+                            >
+                                Back to the Map
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => router.visit(route('mainplay.chapter2-intro'))}
+                            className="outline-none focus-visible:ring-4 focus-visible:ring-yellow-300 rounded-xl cursor-pointer bg-transparent border-none p-0"
+                        >
+                            <span
+                                className="inline-block rounded-sans tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-yellow-300 animate-pulse transform transition-transform duration-200 hover:scale-110 fade-in-soft"
+                                style={{
+                                    textShadow: '0 0 8px rgba(250,250,150,0.9), 0 0 18px rgba(250,250,150,0.7)',
+                                    WebkitTextStroke: '1px rgba(253, 224, 71, 0.8)',
+                                    paintOrder: 'stroke fill'
+                                }}
+                            >
+                                Proceed to Next
+                            </span>
+                        </button>
+                    </div>
                 )}
             </div>
         </>

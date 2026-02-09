@@ -1,5 +1,7 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
 import { useEffect, useState } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
 
 /** Stage 1 full-screen background (attic). */
 const STAGE_1_BG_1 = '/assets/img/Attic Background -20260201T170631Z-3-001/Attic Background/attic1.webp';
@@ -28,7 +30,7 @@ function GlowingHandSign({ visible }) {
                 }}
             >
                 <img
-                    src="/assets/img/pointt.png"
+                    src="/assets/img/pointt.webp"
                     alt=""
                     loading="eager"
                     decoding="async"
@@ -41,7 +43,11 @@ function GlowingHandSign({ visible }) {
     );
 }
 
+const PROLOGUE_BGM = '/assets/audio/bgm/tunetank-medieval-happy-music-412790.mp3';
+const VOICE_LEO_LOLA = '/assets/audio/Leo/Lola said there are only old boxes….m4a';
+
 export default function Stage1Attic() {
+    const { playBGM, playVoice, stopVoice, stopBGM } = useAudio() ?? {};
     /** Overlay sequence: 'dark' → 'text' (title fades in) → 'revealed' (dark fades out) → 'done' (title fades out). */
     const [overlayPhase, setOverlayPhase] = useState('dark');
     /** Leo sprite: starts waving, then curious, climbs, then reacts with "oh!". */
@@ -54,6 +60,7 @@ export default function Stage1Attic() {
     const [handVisible, setHandVisible] = useState(true);
 
     const close = () => {
+        stopBGM?.();
         router.visit(route('mainplay'));
     };
 
@@ -68,6 +75,11 @@ export default function Stage1Attic() {
         };
     }, []);
 
+    useEffect(() => {
+        if (PROLOGUE_BGM && playBGM) playBGM(PROLOGUE_BGM, true);
+        // Don't stop BGM on unmount – it continues to prologue2-attic
+    }, [playBGM]);
+
     // After Leo appears (done phase), switch to curious after 3 seconds
     useEffect(() => {
         if (overlayPhase !== 'done') return;
@@ -81,8 +93,15 @@ export default function Stage1Attic() {
         "Leo looks up. All the way up the ladder, and the door is firmly closed. He attempts to get up to it alone, but he is a bit too short. He needs a helper. He needs you.",
         "Tap the ladder and make Leo climb it!",
     ];
+    const voiceByStep = [VOICE_LEO_LOLA, null, null];
 
     const narrationDone = overlayPhase === 'done' && narrationStep >= narrationLines.length;
+
+    useEffect(() => {
+        if (overlayPhase === 'done' && voiceByStep[narrationStep] && playVoice) {
+            playVoice(voiceByStep[narrationStep]);
+        }
+    }, [overlayPhase, narrationStep, playVoice]);
 
     function onLadderClick() {
         if (!narrationDone) return;
@@ -105,6 +124,7 @@ export default function Stage1Attic() {
         <>
             <Head title="Prologue: The Secret in the Attic" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 <div
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat fade-in-soft"
                     style={{ backgroundImage: `url('${encodeURI(STAGE_1_BG_1)}')` }}
@@ -119,7 +139,7 @@ export default function Stage1Attic() {
                             : narrationStep === 0
                                 ? '/assets/img/Leo1.webp'
                                 : narrationStep === 1
-                                    ? '/assets/img/Leo1-left.png'
+                                    ? '/assets/img/Leo1-left.webp'
                                     : '/assets/img/Leo2.webp'
                     }
                     alt=""
@@ -134,7 +154,7 @@ export default function Stage1Attic() {
                                 : narrationStep <= 1
                                     ? '74%' // intro near sofa (both first and second lines)
                                     : '34%', // from third line onward, beside ladder
-                        bottom: leoSprite === 'climb' ? '-4%' : '-6%',
+                        bottom: leoSprite === 'climb' ? '2%' : '0%',
                         // When climbing, move Leo much higher up the ladder.
                         transform: `translateX(-50%) translateY(${leoClimbing ? '-55%' : '0%'})`,
                         opacity: overlayPhase === 'done' ? 1 : 0,
@@ -205,14 +225,17 @@ export default function Stage1Attic() {
                                     {narrationStep === 0 ? 'LEO' : 'Narrator'}
                                 </div>
                                 <div className="h-px bg-white/30 mb-2" aria-hidden />
-                                <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                     {narrationLines[narrationStep]}
                                 </div>
                             </div>
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => setNarrationStep((s) => s + 1)}
+                                onClick={() => {
+                                    stopVoice?.();
+                                    setNarrationStep((s) => s + 1);
+                                }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

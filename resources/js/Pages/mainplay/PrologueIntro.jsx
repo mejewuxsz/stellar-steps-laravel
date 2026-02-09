@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
 import { useEffect, useState } from 'react';
 
 const WOOD_BG = '/assets/img/LP_BG.webp';
@@ -23,6 +24,7 @@ export default function PrologueIntro() {
         <>
             <Head title="Prologue: The Secret in the Attic" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 <div
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat fade-in-soft"
                     style={{ backgroundImage: `url('${encodeURI(WOOD_BG)}')` }}
@@ -38,7 +40,7 @@ export default function PrologueIntro() {
                                 decoding="async"
                                 className="w-[78vw] max-w-[880px] drop-shadow-2xl"
                             />
-                            <div className="cartoon-thin text-white text-2xl sm:text-3xl md:text-4xl text-center drop-shadow-lg">
+                            <div className="cartoon-thin narration-text text-white text-2xl sm:text-3xl md:text-4xl text-center drop-shadow-lg">
                                 Prologue: The Secret in the Attic
                             </div>
                         </div>
@@ -49,7 +51,7 @@ export default function PrologueIntro() {
                     <>
                         <div className="absolute inset-0 bg-black" aria-hidden />
                         <img
-                            src="/assets/img/Leo0.png"
+                            src="/assets/img/Leo0.webp"
                             alt="Leo waving hello"
                             loading="eager"
                             decoding="async"
@@ -63,7 +65,7 @@ export default function PrologueIntro() {
                                         Narrator
                                     </div>
                                     <div className="h-px bg-white/30 mb-2" aria-hidden />
-                                    <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                    <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                         {firstLine}
                                     </div>
                                 </div>

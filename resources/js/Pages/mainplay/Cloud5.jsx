@@ -1,0 +1,397 @@
+import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
+import { useState, useEffect } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
+
+const FULL_BG_ZOOMED = '/assets/img/The Gate of Gratitude-20260201T170632Z-3-001/The Gate of Gratitude/Full BG-zoomed.webp';
+const DOOR_SLEEPING = '/assets/img/The Gate of Gratitude-20260201T170632Z-3-001/The Gate of Gratitude/Default_Sleeping.PNG.webp';
+const DOOR_STEP4 = '/assets/img/The Gate of Gratitude-20260201T170632Z-3-001/The Gate of Gratitude/IMG_9241.PNG.webp';
+const DOOR_STEP9 = '/assets/img/The Gate of Gratitude-20260201T170632Z-3-001/The Gate of Gratitude/IMG_9243.PNG.webp';
+const DOOR_STEP10 = '/assets/img/The Gate of Gratitude-20260201T170632Z-3-001/The Gate of Gratitude/Stone opens.webp';
+const LEO_STEP1 = '/assets/img/Leo0.webp';
+   const LEO_STEP2 = '/assets/img/LeoCurious-right.webp';
+   const LEO_STEP3 = '/assets/img/LeoOH!.webp';
+   const LEO_STEP4 = '/assets/img/Leo0.webp';
+   const MARKY_STEP1 = '/assets/img/Marky1-right.webp';
+   const MARKY_STEP2 = '/assets/img/Marky3.webp';
+   const MARKY_STEP4 = '/assets/img/Marky1-right.webp';
+   const MARKY_STEP10 = '/assets/img/Marky2-left.webp';
+   const MARKY_STEP11 = '/assets/img/Marky4.webp';
+   const MARKY_STEP12 = '/assets/img/Marky2-left.webp';
+const PO_OVERLAY = '/assets/img/po-overlay.webp';
+const STAR_IMG = '/assets/img/Star.webp';
+
+const CHOICE_A = 'Hey! Wake up!';
+const CHOICE_B = 'Excuse me, po, Mr. Guardian? May I speak with you?';
+const CHOICE_A_STEP6 = 'Open this right now!';
+const CHOICE_B_STEP6 = 'I ask you to open the door, po.';
+
+export default function Cloud5() {
+    const { playVoice, stopVoice, playSFX } = useAudio() ?? {};
+    const [step, setStep] = useState(1);
+    const [showStar, setShowStar] = useState(false);
+    const [starClicked, setStarClicked] = useState(false);
+
+    const handleChoice = (choice) => {
+        if (choice === 'B') {
+            setStep(3);
+        }
+    };
+
+    const handleChoiceStep6 = (choice) => {
+        if (choice === 'B') {
+            setStep(7);
+        }
+    };
+
+    useEffect(() => {
+        const src = AUDIO.cloud5?.voice?.[step - 1];
+        if (src && playVoice) playVoice(src);
+        else stopVoice?.();
+        if (step === 9 && AUDIO.cloud5?.stoneGuardianCracks && playSFX) playSFX(AUDIO.cloud5.stoneGuardianCracks);
+    }, [step, playVoice, stopVoice, playSFX]);
+
+    useEffect(() => {
+        if (step === 9) {
+            const t = setTimeout(() => setStep(10), 1000);
+            return () => clearTimeout(t);
+        }
+        if (step === 10) {
+            const t = setTimeout(() => setStep(11), 1000);
+            return () => clearTimeout(t);
+        }
+    }, [step]);
+
+    useEffect(() => {
+        if (step !== 12) return;
+        const t = setTimeout(() => setShowStar(true), 1000);
+        return () => clearTimeout(t);
+    }, [step]);
+
+    useEffect(() => {
+        if (!starClicked) return;
+        const t = setTimeout(() => router.visit(route('mainplay.cloud6')), 800);
+        return () => clearTimeout(t);
+    }, [starClicked]);
+
+    return (
+        <>
+            <Head title="Cloud 5 - Select the polite response" />
+            <div className="fixed inset-0 z-[100] w-full h-full bg-sky-400 fade-in-soft">
+                <BackToMapButton />
+                {/* Background */}
+                <img
+                    src={encodeURI(FULL_BG_ZOOMED)}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
+                    loading="eager"
+                />
+
+                {/* Door - Stone Guardian */}
+                <img
+                    src={encodeURI(step === 9 ? DOOR_STEP9 : step === 10 || step === 11 || step === 12 ? DOOR_STEP10 : step === 4 || step === 5 || step === 6 || step === 7 || step === 8 ? DOOR_STEP4 : DOOR_SLEEPING)}
+                    alt="Stone Guardian"
+                    className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[min(85vw,800px)] h-auto object-contain object-bottom pointer-events-none"
+                    loading="eager"
+                />
+
+                {/* Leo */}
+                <img
+                    src={encodeURI(step === 1 ? LEO_STEP1 : step === 2 ? LEO_STEP2 : step === 3 ? LEO_STEP3 : step === 4 ? LEO_STEP4 : step === 5 ? LEO_STEP1 : step === 6 ? LEO_STEP2 : step === 7 ? LEO_STEP3 : step === 8 ? LEO_STEP4 : step === 12 ? LEO_STEP1 : step === 9 || step === 10 || step === 11 ? LEO_STEP3 : LEO_STEP3)}
+                    alt="Leo"
+                    className="absolute left-[8%] bottom-[2%] w-[min(54vw,460px)] h-auto object-contain object-bottom pointer-events-none"
+                    loading="eager"
+                />
+
+                {/* Po! speech bubble on top of Leo — step 3 and step 7 */}
+                {(step === 3 || step === 7) && (
+                    <img
+                        src={PO_OVERLAY}
+                        alt=""
+                        className="absolute left-[10%] bottom-[26%] w-[min(64vw,400px)] h-auto object-contain object-bottom pointer-events-none z-[60]"
+                        loading="eager"
+                        aria-hidden
+                    />
+                )}
+
+                {/* Marky */}
+                <img
+                    src={encodeURI(step === 1 ? MARKY_STEP1 : step === 2 ? MARKY_STEP2 : step === 4 ? MARKY_STEP4 : step === 5 ? MARKY_STEP1 : step === 6 ? MARKY_STEP2 : step === 7 ? MARKY_STEP2 : step === 8 ? MARKY_STEP4 : step === 9 ? MARKY_STEP2 : step === 10 ? MARKY_STEP10 : step === 11 ? MARKY_STEP11 : step === 12 ? MARKY_STEP12 : MARKY_STEP2)}
+                    alt="Marky"
+                    className="absolute right-[6%] top-[12%] w-[min(46vw,380px)] h-auto object-contain pointer-events-none"
+                    loading="eager"
+                />
+
+                {/* Black overlay — step 1 and step 5 (not step 6) */}
+                {(step === 1 || step === 5) && (
+                    <div className="absolute inset-0 z-50 bg-black/60 pointer-events-none" aria-hidden />
+                )}
+
+                {/* Step 1: Direction - orange highlighted */}
+                {step === 1 && (
+                    <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[110]">
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/80 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border-2 border-orange-400 flex items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                    <span className="text-orange-400 font-bold">Direction: Select the polite response!</span>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
+                                onClick={() => setStep(2)}
+                                aria-label="Next"
+                            >
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 2: Pop-up questions */}
+                {step === 2 && (
+                    <div className="absolute right-4 sm:right-10 bottom-6 sm:bottom-8 left-4 sm:left-auto sm:max-w-sm z-[110] flex flex-col gap-3">
+                        <button
+                            type="button"
+                            className="rounded-xl bg-gray-800/90 text-white px-4 py-3 text-left text-sm sm:text-base border border-white/30 hover:bg-gray-700/90 transition-colors cartoon-thin"
+                            onClick={() => handleChoice('A')}
+                        >
+                            Choice A: {CHOICE_A}
+                        </button>
+                        <button
+                            type="button"
+                            className="rounded-xl bg-gray-800/90 text-white px-4 py-3 text-left text-sm sm:text-base border border-white/30 hover:bg-gray-700/90 transition-colors cartoon-thin"
+                            onClick={() => handleChoice('B')}
+                        >
+                            Choice B: {CHOICE_B}
+                        </button>
+                    </div>
+                )}
+
+                {/* Step 3: Leo's narration */}
+                {step === 3 && (
+                    <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[110]">
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                                <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-yellow-400 mb-2">
+                                    Leo
+                                </div>
+                                <div className="h-px bg-white/30 mb-2" aria-hidden />
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                    Excuse me, po, Mr. Guardian? May I speak with you?
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
+                                onClick={() => setStep(4)}
+                                aria-label="Next"
+                            >
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 4: Stone Guardians narration */}
+                {step === 4 && (
+                    <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[110]">
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                                <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-yellow-400 mb-2">
+                                    Stone Guardians
+                                </div>
+                                <div className="h-px bg-white/30 mb-2" aria-hidden />
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                    Oh? That sounds much better. You used &apos;Po&apos;. You are a respectful child. What do you need?
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
+                                onClick={() => setStep(5)}
+                                aria-label="Next"
+                            >
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 5: Direction — same content as step 1 */}
+                {step === 5 && (
+                    <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[110]">
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/80 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border-2 border-orange-400 flex items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                    <span className="text-orange-400 font-bold">Direction: Have the Guardian open the door!</span>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
+                                onClick={() => setStep(6)}
+                                aria-label="Next"
+                            >
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 6: Pop-up questions — same content as step 2, different choices */}
+                {step === 6 && (
+                    <div className="absolute right-4 sm:right-10 bottom-6 sm:bottom-8 left-4 sm:left-auto sm:max-w-sm z-[110] flex flex-col gap-3">
+                        <button
+                            type="button"
+                            className="rounded-xl bg-gray-800/90 text-white px-4 py-3 text-left text-sm sm:text-base border border-white/30 hover:bg-gray-700/90 transition-colors cartoon-thin"
+                            onClick={() => handleChoiceStep6('A')}
+                        >
+                            Choice A: {CHOICE_A_STEP6}
+                        </button>
+                        <button
+                            type="button"
+                            className="rounded-xl bg-gray-800/90 text-white px-4 py-3 text-left text-sm sm:text-base border border-white/30 hover:bg-gray-700/90 transition-colors cartoon-thin"
+                            onClick={() => handleChoiceStep6('B')}
+                        >
+                            Choice B: {CHOICE_B_STEP6}
+                        </button>
+                    </div>
+                )}
+
+                {/* Step 7: Leo's narration — same content as step 3, different text */}
+                {step === 7 && (
+                    <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[110]">
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                                <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-yellow-400 mb-2">
+                                    Leo
+                                </div>
+                                <div className="h-px bg-white/30 mb-2" aria-hidden />
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                    Please open the door, po. I really miss my family.
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
+                                onClick={() => setStep(8)}
+                                aria-label="Next"
+                            >
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 8: Stone Guardians narration — same content as step 4, different text */}
+                {step === 8 && (
+                    <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[110]">
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                                <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-yellow-400 mb-2">
+                                    Stone Guardians
+                                </div>
+                                <div className="h-px bg-white/30 mb-2" aria-hidden />
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                    Hmm. You are brave and polite. Very well. The Gate of Gratitude does not open to those who do not know how to ask nicely.
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
+                                onClick={() => setStep(9)}
+                                aria-label="Next"
+                            >
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 9: Door opening scene — auto-transitions to step 10 after 1s */}
+
+                {/* Step 10: Stone fully open — auto-transitions to step 11 after 1s */}
+
+                {/* Step 11: Marky's narration */}
+                {step === 11 && (
+                    <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[110]">
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                                <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-yellow-400 mb-2">
+                                    Marky
+                                </div>
+                                <div className="h-px bg-white/30 mb-2" aria-hidden />
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                    You did it, Leo! You used the Magic Words!
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
+                                onClick={() => setStep(12)}
+                                aria-label="Next"
+                            >
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 12: Final Star — tap to go home */}
+                {step === 12 && (
+                    <>
+                        {/* Star — appears at top 1 second after step 12 */}
+                        {showStar && (
+                            <div
+                                className="absolute left-1/2 top-[30%] -translate-x-1/2 -translate-y-1/2 w-[min(40vw,400px)] flex justify-center items-center z-[60]"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => { if (!starClicked) { playSFX?.(AUDIO.sfx.starClick); setStarClicked(true); } }}
+                                onKeyDown={(e) => { if (e.key === 'Enter' && !starClicked) { playSFX?.(AUDIO.sfx.starClick); setStarClicked(true); } }}
+                            >
+                                <div className={starClicked ? 'star-spin' : ''}>
+                                    <img
+                                        src={STAR_IMG}
+                                        alt="Final Star"
+                                        loading="eager"
+                                        className="w-full h-auto object-contain star-fade-in cursor-pointer transition-transform duration-300 hover:scale-110 hover:brightness-110"
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        {/* Narration bar — no Next button */}
+                        <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[110]">
+                            <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20">
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-white/90 mb-2">
+                                        Marky
+                                    </div>
+                                    <div className="h-px bg-white/30 mb-2" aria-hidden />
+                                    <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                        Tap the Final Star to go home!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
+        </>
+    );
+}

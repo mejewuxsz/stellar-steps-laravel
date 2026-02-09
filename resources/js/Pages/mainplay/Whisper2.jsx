@@ -1,8 +1,16 @@
 import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
+import BackToMapButton from '@/Components/BackToMapButton';
+import { useState, useEffect } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
 
 export default function Whisper2() {
     const [step, setStep] = useState(0); // 0 = Leo line, 1 = Marky line, 2 = Narrator SFX
+    const { playVoice } = useAudio() ?? {};
+    useEffect(() => {
+        const src = AUDIO.whisper2?.voice?.[step];
+        if (src && playVoice) playVoice(src);
+    }, [step, playVoice]);
 
     const SPEAKERS = ['LEO', 'MARKY', 'NARRATOR'];
     const LINES = [
@@ -15,9 +23,10 @@ export default function Whisper2() {
         <>
             <Head title="Whisper 2 - The Whispering Woods" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 {/* Background image – new woods view */}
                 <img
-                    src="/assets/img/whisperingwoods/bg%20%233%20new.png"
+                    src="/assets/img/whisperingwoods/bg%20%233%20new.webp"
                     alt="Whispering Woods"
                     loading="eager"
                     decoding="async"
@@ -26,7 +35,7 @@ export default function Whisper2() {
 
                 {/* Leo shivering on the left, facing right – nudged a bit more toward center */}
                 <img
-                    src="/assets/img/whisperingwoods/Leo%20Shivering-right.png"
+                    src="/assets/img/whisperingwoods/Leo%20Shivering-right.webp"
                     alt="Leo shivering"
                     loading="eager"
                     decoding="async"
@@ -36,7 +45,7 @@ export default function Whisper2() {
 
                 {/* Marky – worried, then reassuring (Marky4 after first Next), slightly bigger than Leo (match Leo's style) – nudged a little further toward center */}
                 <img
-                    src={step === 0 ? '/assets/img/Marky3.png' : '/assets/img/Marky4.png'}
+                    src={step === 0 ? '/assets/img/Marky3.webp' : '/assets/img/Marky4.webp'}
                     alt="Marky"
                     loading="eager"
                     decoding="async"
@@ -52,7 +61,7 @@ export default function Whisper2() {
                                 {SPEAKERS[step]}
                             </div>
                             <div className="h-px bg-white/30 mb-2" aria-hidden />
-                            <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                            <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                 {LINES[step]}
                             </div>
                         </div>

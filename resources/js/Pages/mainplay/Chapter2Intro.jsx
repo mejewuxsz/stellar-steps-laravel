@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
 import { useEffect, useState } from 'react';
 
 const WOOD_BG = '/assets/img/LP_BG.webp';
@@ -29,6 +30,7 @@ export default function Chapter2Intro() {
         <>
             <Head title="Chapter 2: The Whispering Woods" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 <div
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat fade-in-soft"
                     style={{ backgroundImage: `url('${encodeURI(WOOD_BG)}')` }}
@@ -44,7 +46,7 @@ export default function Chapter2Intro() {
                                 decoding="async"
                                 className="w-[78vw] max-w-[880px] drop-shadow-2xl"
                             />
-                            <div className="cartoon-thin text-white text-2xl sm:text-3xl md:text-4xl text-center drop-shadow-lg">
+                            <div className="cartoon-thin narration-text text-white text-2xl sm:text-3xl md:text-4xl text-center drop-shadow-lg">
                                 Chapter 2: The Whispering Woods.
                             </div>
                         </div>

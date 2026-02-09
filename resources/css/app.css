@@ -4,7 +4,26 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Stellar Steps title.png glow – gold (Stellar/star) + blue/purple (Steps), brighter + blink */
+/* Prevent scrollbars and black excess in fullscreen – ensure viewport fills exactly */
+html {
+    overflow: hidden;
+    height: 100%;
+}
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    min-height: 100%;
+    height: 100%;
+    width: 100%;
+}
+/* Inertia root */
+body > div {
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Stellar Steps title.webp glow – gold (Stellar/star) + blue/purple (Steps), brighter + blink */
 @keyframes title-glow-blink {
     0%, 100% {
         filter:
@@ -50,6 +69,71 @@
 .cartoon-thin {
     font-family: 'Quicksand', 'Comfortaa', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 600;
+}
+
+/* Narration and direction text – scales with Settings > Text Size (set via --narration-text-size on html) */
+.narration-text {
+    font-size: var(--narration-text-size, 130%) !important;
+}
+
+/* Settings sliders – horizontal track + progress, percentage inside */
+.settings-slider-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.settings-slider-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    background: #e5e5e5;
+    overflow: hidden;
+    pointer-events: none;
+}
+.settings-slider-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 28px;
+    background: #ffffff;
+    transform-origin: left center;
+    transform: scaleX(var(--slider-complete, 0.5));
+    transition: transform 0.2s ease;
+    pointer-events: none;
+}
+.settings-slider-percent {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 5;
+}
+.settings-slider-wrap input[type='range'] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.settings-slider-wrap input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 56px;
+    height: 56px;
+}
+.settings-slider-wrap input[type='range']::-moz-range-thumb {
+    width: 56px;
+    height: 56px;
 }
 
 /* PIN numbers: Patrick Hand (rounded, slightly irregular strokes, no serifs) */
@@ -210,10 +294,10 @@ input:focus {
     100% { transform: translate(0, 0) rotate(0deg); }
 }
 .gentle-tilt-move-shake {
-    animation: tilt-n-move-shaking 0.25s infinite;
+    animation: tilt-n-move-shaking 0.18s infinite;
 }
 .strong-tilt-move-shake {
-    animation: tilt-n-move-shaking 0.15s infinite;
+    animation: tilt-n-move-shaking 0.12s infinite;
 }
 
 /* Subtle shake that only runs twice (e.g. branches in Whisper3) */
@@ -294,6 +378,158 @@ input:focus {
 }
 .fall-down {
     animation: fall-down 2s ease-in forwards;
+}
+
+/* Bag jump with arc - smooth parabolic path via quadratic Bézier (from -> mid apex -> to) */
+@keyframes bag-jump-arc {
+    0% {
+        left: var(--arc-from-left);
+        top: var(--arc-from-top);
+        transform: translate(-50%, -50%) scale(1);
+    }
+    6.25% {
+        left: calc(var(--arc-from-left) * 0.879 + var(--arc-mid-left) * 0.117 + var(--arc-to-left) * 0.004);
+        top: calc(var(--arc-from-top) * 0.879 + var(--arc-mid-top) * 0.117 + var(--arc-to-top) * 0.004);
+        transform: translate(-50%, -50%) scale(1.02);
+    }
+    12.5% {
+        left: calc(var(--arc-from-left) * 0.766 + var(--arc-mid-left) * 0.219 + var(--arc-to-left) * 0.016);
+        top: calc(var(--arc-from-top) * 0.766 + var(--arc-mid-top) * 0.219 + var(--arc-to-top) * 0.016);
+        transform: translate(-50%, -50%) scale(1.04);
+    }
+    18.75% {
+        left: calc(var(--arc-from-left) * 0.66 + var(--arc-mid-left) * 0.305 + var(--arc-to-left) * 0.035);
+        top: calc(var(--arc-from-top) * 0.66 + var(--arc-mid-top) * 0.305 + var(--arc-to-top) * 0.035);
+        transform: translate(-50%, -50%) scale(1.06);
+    }
+    25% {
+        left: calc(var(--arc-from-left) * 0.563 + var(--arc-mid-left) * 0.375 + var(--arc-to-left) * 0.063);
+        top: calc(var(--arc-from-top) * 0.563 + var(--arc-mid-top) * 0.375 + var(--arc-to-top) * 0.063);
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+    31.25% {
+        left: calc(var(--arc-from-left) * 0.473 + var(--arc-mid-left) * 0.43 + var(--arc-to-left) * 0.098);
+        top: calc(var(--arc-from-top) * 0.473 + var(--arc-mid-top) * 0.43 + var(--arc-to-top) * 0.098);
+        transform: translate(-50%, -50%) scale(1.09);
+    }
+    37.5% {
+        left: calc(var(--arc-from-left) * 0.391 + var(--arc-mid-left) * 0.469 + var(--arc-to-left) * 0.141);
+        top: calc(var(--arc-from-top) * 0.391 + var(--arc-mid-top) * 0.469 + var(--arc-to-top) * 0.141);
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    43.75% {
+        left: calc(var(--arc-from-left) * 0.316 + var(--arc-mid-left) * 0.492 + var(--arc-to-left) * 0.191);
+        top: calc(var(--arc-from-top) * 0.316 + var(--arc-mid-top) * 0.492 + var(--arc-to-top) * 0.191);
+        transform: translate(-50%, -50%) scale(1.11);
+    }
+    50% {
+        left: calc(var(--arc-from-left) * 0.25 + var(--arc-mid-left) * 0.5 + var(--arc-to-left) * 0.25);
+        top: calc(var(--arc-from-top) * 0.25 + var(--arc-mid-top) * 0.5 + var(--arc-to-top) * 0.25);
+        transform: translate(-50%, -50%) scale(1.12);
+    }
+    56.25% {
+        left: calc(var(--arc-from-left) * 0.191 + var(--arc-mid-left) * 0.492 + var(--arc-to-left) * 0.316);
+        top: calc(var(--arc-from-top) * 0.191 + var(--arc-mid-top) * 0.492 + var(--arc-to-top) * 0.316);
+        transform: translate(-50%, -50%) scale(1.11);
+    }
+    62.5% {
+        left: calc(var(--arc-from-left) * 0.141 + var(--arc-mid-left) * 0.469 + var(--arc-to-left) * 0.391);
+        top: calc(var(--arc-from-top) * 0.141 + var(--arc-mid-top) * 0.469 + var(--arc-to-top) * 0.391);
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    68.75% {
+        left: calc(var(--arc-from-left) * 0.098 + var(--arc-mid-left) * 0.43 + var(--arc-to-left) * 0.473);
+        top: calc(var(--arc-from-top) * 0.098 + var(--arc-mid-top) * 0.43 + var(--arc-to-top) * 0.473);
+        transform: translate(-50%, -50%) scale(1.09);
+    }
+    75% {
+        left: calc(var(--arc-from-left) * 0.063 + var(--arc-mid-left) * 0.375 + var(--arc-to-left) * 0.563);
+        top: calc(var(--arc-from-top) * 0.063 + var(--arc-mid-top) * 0.375 + var(--arc-to-top) * 0.563);
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+    81.25% {
+        left: calc(var(--arc-from-left) * 0.035 + var(--arc-mid-left) * 0.305 + var(--arc-to-left) * 0.66);
+        top: calc(var(--arc-from-top) * 0.035 + var(--arc-mid-top) * 0.305 + var(--arc-to-top) * 0.66);
+        transform: translate(-50%, -50%) scale(1.06);
+    }
+    87.5% {
+        left: calc(var(--arc-from-left) * 0.016 + var(--arc-mid-left) * 0.219 + var(--arc-to-left) * 0.766);
+        top: calc(var(--arc-from-top) * 0.016 + var(--arc-mid-top) * 0.219 + var(--arc-to-top) * 0.766);
+        transform: translate(-50%, -50%) scale(1.04);
+    }
+    93.75% {
+        left: calc(var(--arc-from-left) * 0.004 + var(--arc-mid-left) * 0.117 + var(--arc-to-left) * 0.879);
+        top: calc(var(--arc-from-top) * 0.004 + var(--arc-mid-top) * 0.117 + var(--arc-to-top) * 0.879);
+        transform: translate(-50%, -50%) scale(1.02);
+    }
+    100% {
+        left: var(--arc-to-left);
+        top: var(--arc-to-top);
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+.animate-bag-jump-arc {
+    animation: bag-jump-arc 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* Bag bounce when landing on rock */
+@keyframes bag-bounce {
+    0% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    50% {
+        transform: translate(-50%, calc(-50% + 8px)) scale(1);
+    }
+    75% {
+        transform: translate(-50%, calc(-50% - 4px)) scale(1.05);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+.animate-bag-bounce {
+    animation: bag-bounce 0.35s ease-out forwards;
+}
+
+/* Bag fall for cloud2-game when landing on cloud */
+@keyframes bag-fall {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, 80vh) scale(0.8);
+        opacity: 0.5;
+    }
+}
+.animate-bag-fall {
+    animation: bag-fall 0.8s ease-in forwards;
+}
+
+/* Map shift: platforms fall down when bag reaches upper section */
+@keyframes map-shift-down {
+    0% {
+        transform: translateY(-66.67%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+.animate-map-shift {
+    animation: map-shift-down 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* Bag moves down with the platform during map shift */
+@keyframes bag-shift-down {
+    0% {
+        top: 10%;
+    }
+    100% {
+        top: 76.66%;
+    }
+}
+.animate-bag-shift-down {
+    animation: bag-shift-down 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
 
 /* Falling from top left to lower left for Kingdom1 */

@@ -1,9 +1,23 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
 import { useState, useEffect } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
 
 export default function KingdomComplete() {
+    const { stopBGM, playVoice, stopVoice, playSFX } = useAudio() ?? {};
     const [step, setStep] = useState(0);
     const [starSpinning, setStarSpinning] = useState(false);
+
+    useEffect(() => {
+        stopBGM?.();
+    }, [stopBGM]);
+
+    useEffect(() => {
+        const src = AUDIO.kingdomComplete?.voice?.[step];
+        if (src && playVoice) playVoice(src);
+        return () => stopVoice?.();
+    }, [step, playVoice, stopVoice]);
 
     useEffect(() => {
         if (step !== 1) return;
@@ -15,9 +29,10 @@ export default function KingdomComplete() {
         <>
             <Head title="Chapter 1: Kingdom Complete" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-white">
+                <BackToMapButton />
                 {/* Leo on the left */}
                 <img
-                    src="/assets/img/Leo0.png"
+                    src="/assets/img/Leo0.webp"
                     alt="Leo"
                     loading="eager"
                     decoding="async"
@@ -25,7 +40,7 @@ export default function KingdomComplete() {
                 />
                 {/* Marky on the right - Marky2-left when step 2 or 4 */}
                 <img
-                    src={(step === 2 || step === 4) ? '/assets/img/Marky2-left.png' : '/assets/img/Marky1.png'}
+                    src={(step === 2 || step === 4) ? '/assets/img/Marky2-left.webp' : '/assets/img/Marky1.webp'}
                     alt="Marky"
                     loading="eager"
                     decoding="async"
@@ -38,8 +53,8 @@ export default function KingdomComplete() {
                         className="absolute left-1/2 top-[30%] -translate-x-1/2 -translate-y-1/2 w-[min(40vw,400px)] flex justify-center items-center"
                         role={step === 2 ? 'button' : undefined}
                         tabIndex={step === 2 ? 0 : undefined}
-                        onClick={step === 2 ? () => { setStarSpinning(true); setStep(3); } : undefined}
-                        onKeyDown={step === 2 ? (e) => { if (e.key === 'Enter') { setStarSpinning(true); setStep(3); } } : undefined}
+                        onClick={step === 2 ? () => { playSFX?.(AUDIO.sfx.starClick); setStarSpinning(true); setStep(3); } : undefined}
+                        onKeyDown={step === 2 ? (e) => { if (e.key === 'Enter') { playSFX?.(AUDIO.sfx.starClick); setStarSpinning(true); setStep(3); } } : undefined}
                     >
                         <div className={starSpinning ? 'star-spin' : ''}>
                             <img
@@ -62,7 +77,7 @@ export default function KingdomComplete() {
                                     {step === 3 ? 'LEO' : 'MARKY'}
                                 </div>
                                 <div className="h-px bg-white/30 mb-2" aria-hidden />
-                                <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                     {step === 0 && 'You did it, Leo! You fixed the story! And look!'}
                                     {step === 2 && 'Tap that Star to get it!'}
                                     {step === 3 && 'Yes! We got the Star of Order! One step closer to going home.'}

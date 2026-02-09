@@ -1,12 +1,15 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
 import { useState, useEffect } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
 
 const BG_BY_STEP = [
-    '/assets/img/Chapter 1- Frame 15.png',
-    '/assets/img/C1F16-BG.png',
-    '/assets/img/Chapter 1- Frame 17.png',
-    '/assets/img/C1F18-BG.png',
-    '/assets/img/C1F18-BG.png',
+    '/assets/img/Chapter 1- Frame 15.webp',
+    '/assets/img/C1F16-BG.webp',
+    '/assets/img/Chapter 1- Frame 17.webp',
+    '/assets/img/C1F18-BG.webp',
+    '/assets/img/C1F18-BG.webp',
 ];
 
 const NARRATIONS = [
@@ -19,8 +22,20 @@ const NARRATIONS = [
 
 const SPEAKERS = ['KING CRUMBLE', null, 'KING CRUMBLE', 'LEO', 'KING CRUMBLE'];
 
+const KINGDOM_END_BGM = '/assets/audio/bgm/BGM - Frame 15 - 19.wav';
+
 export default function KingdomEnd() {
+    const { playBGM, playVoice, stopVoice } = useAudio() ?? {};
     const [step, setStep] = useState(0);
+
+    useEffect(() => {
+        if (KINGDOM_END_BGM && playBGM) playBGM(KINGDOM_END_BGM, true);
+    }, [playBGM]);
+
+    useEffect(() => {
+        const src = AUDIO.kingdomEnd?.voice?.[step];
+        if (src && playVoice) playVoice(src);
+    }, [step, playVoice]);
 
     useEffect(() => {
         if (step !== 1) return;
@@ -32,6 +47,7 @@ export default function KingdomEnd() {
         <>
             <Head title="Chapter 1: The Kingdom of Clutter - End" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 {/* Background */}
                 <img
                     src={BG_BY_STEP[step]}
@@ -55,11 +71,11 @@ export default function KingdomEnd() {
                 {/* Leo on the right (step 3, 4) */}
                 {(step === 3 || step === 4) && (
                     <img
-                        src="/assets/img/Frame 18-Leo.png"
+                        src="/assets/img/Frame 18-Leo.webp"
                         alt="Leo"
                         loading="eager"
                         decoding="async"
-                        className="absolute right-[2%] -bottom-[15%] w-[min(70vw,850px)] h-auto object-contain object-bottom fade-in-soft"
+                        className="absolute right-[5%] -bottom-[3%] w-[min(36vw,380px)] h-auto object-contain object-bottom fade-in-soft"
                     />
                 )}
 
@@ -72,7 +88,7 @@ export default function KingdomEnd() {
                                     {SPEAKERS[step]}
                                 </div>
                                 <div className="h-px bg-white/30 mb-2" aria-hidden />
-                                <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                     {NARRATIONS[step]}
                                 </div>
                             </div>
@@ -80,6 +96,7 @@ export default function KingdomEnd() {
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                                 onClick={() => {
+                                    stopVoice?.();
                                     if (step === 4) {
                                         router.visit(route('mainplay.kingdom-complete'));
                                     } else {

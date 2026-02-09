@@ -1,5 +1,7 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
 import { useEffect, useRef, useState } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
 
 const STAGE_1_BG_2 = '/assets/img/Attic Background -20260201T170631Z-3-001/Attic Background/attic2.webp';
 
@@ -20,7 +22,7 @@ function BookHandHint({ visible }) {
         >
             <div className="animate-bounce" style={{ animationDuration: '1.1s' }}>
                 <img
-                    src="/assets/img/pointt.png"
+                    src="/assets/img/pointt.webp"
                     alt=""
                     loading="eager"
                     decoding="async"
@@ -50,8 +52,16 @@ export default function Stage2Attic() {
         '"Oh... over... there."',
         '"I have never read a book that shines."',
     ];
+    const voiceByStep = [null, '/assets/audio/Leo/oh over there.m4a', null];
 
     const preClickDone = narrationStep >= narrationLinesBeforeClick.length;
+
+    const { playVoice, stopVoice } = useAudio() ?? {};
+    useEffect(() => {
+        if (!showDirtyBook && voiceByStep[narrationStep] && playVoice) {
+            playVoice(voiceByStep[narrationStep]);
+        }
+    }, [narrationStep, showDirtyBook, playVoice]);
 
     // When the dirty book is shown, draw the dirt texture onto the canvas.
     useEffect(() => {
@@ -61,7 +71,7 @@ export default function Stage2Attic() {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         const img = new Image();
-        img.src = '/assets/img/dirt.png';
+        img.src = '/assets/img/dirt.webp';
         img.onload = () => {
             canvas.width = img.width;
             canvas.height = img.height;
@@ -104,7 +114,7 @@ export default function Stage2Attic() {
     // After "Well done, Hero!" narration, make the book shake gently, then stronger.
     useEffect(() => {
         if (shakePhase !== 'gentle') return;
-        const t = setTimeout(() => setShakePhase('strong'), 1200);
+        const t = setTimeout(() => setShakePhase('strong'), 800);
         return () => clearTimeout(t);
     }, [shakePhase]);
 
@@ -116,7 +126,7 @@ export default function Stage2Attic() {
             setTimeout(() => {
                 router.visit(route('mainplay.prologue-end'));
             }, 800);
-        }, 3000);
+        }, 2000);
         return () => clearTimeout(t);
     }, [shakePhase]);
 
@@ -124,6 +134,7 @@ export default function Stage2Attic() {
         <>
             <Head title="Stage 1: The Attic – The Book" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 <div
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat fade-in-soft"
                     style={{ backgroundImage: `url('${encodeURI(STAGE_1_BG_2)}')` }}
@@ -157,7 +168,7 @@ export default function Stage2Attic() {
                                     Narrator
                                 </div>
                                 <div className="h-px bg-white/30 mb-2" aria-hidden />
-                                <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                     {heroCongratsStep === 0
                                         ? 'Well done, Hero!'
                                         : 'The Book suddenly shakes! Rumble... Rumble... The Book suddenly opens.'}
@@ -167,6 +178,7 @@ export default function Stage2Attic() {
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                                 onClick={() => {
+                                    stopVoice?.();
                                     if (heroCongratsStep === 0) {
                                         setHeroCongratsStep(1);
                                         setShakePhase('gentle');
@@ -186,7 +198,7 @@ export default function Stage2Attic() {
                 {/* Leo – appears on the right for first narration, then on the left (Leo1-left) for "Oh... over... there." */}
                 {!showDirtyBook && (
                     <img
-                        src={narrationStep === 0 ? '/assets/img/Leo1-left.png' : '/assets/img/Leo1.webp'}
+                        src={narrationStep === 0 ? '/assets/img/Leo1-left.webp' : '/assets/img/Leo1.webp'}
                         alt=""
                         loading="eager"
                         decoding="async"
@@ -292,7 +304,7 @@ export default function Stage2Attic() {
                 {showDirtyBook && showPostClickNarration && (
                     <>
                         <img
-                            src="/assets/img/LeoCurious.png"
+                            src="/assets/img/LeoCurious.webp"
                             alt=""
                             loading="eager"
                             decoding="async"
@@ -310,7 +322,7 @@ export default function Stage2Attic() {
                                         Narrator
                                     </div>
                                     <div className="h-px bg-white/30 mb-2" aria-hidden />
-                                    <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                    <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                         {postClickStep === 0 ? (
                                             <>
                                                 Leo reaches his hand out. He would like to open it, then the cover is so dirty! Years
@@ -325,6 +337,7 @@ export default function Stage2Attic() {
                                     type="button"
                                     className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                                     onClick={() => {
+                                        stopVoice?.();
                                         if (postClickStep === 0) {
                                             setPostClickStep(1);
                                         } else {
@@ -351,14 +364,17 @@ export default function Stage2Attic() {
                                     {narrationStep === 0 ? 'Narrator' : 'LEO'}
                                 </div>
                                 <div className="h-px bg-white/30 mb-2" aria-hidden />
-                                <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                     {narrationLinesBeforeClick[narrationStep]}
                                 </div>
                             </div>
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => setNarrationStep((s) => s + 1)}
+                                onClick={() => {
+                                    stopVoice?.();
+                                    setNarrationStep((s) => s + 1);
+                                }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

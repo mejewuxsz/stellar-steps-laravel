@@ -1,5 +1,8 @@
 import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
+import BackToMapButton from '@/Components/BackToMapButton';
+import { useState, useEffect } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
 
 const NARRATIONS = [
     'Ewww. It is a musty-smelling place like old cheese.',
@@ -14,24 +17,35 @@ const NARRATIONS = [
 const SPEAKERS = ['LEO', 'LEO', 'MARKY', 'LEO', 'KING CRUMBLE', 'LEO', 'KING CRUMBLE', 'LEO'];
 
 const BG_IMGS = [
-    '/assets/img/C1F3-BG.png',
-    '/assets/img/C1F3-BG.png',
-    '/assets/img/C1F5-BG.png',
-    '/assets/img/C1F6-BG.png',
-    '/assets/img/C1F7-BG.png',
-    '/assets/img/C1F2-BG.png',
-    '/assets/img/C1F7-BG.png',
-    '/assets/img/C1F2-BG.png',
+    '/assets/img/C1F3-BG.webp',
+    '/assets/img/C1F3-BG.webp',
+    '/assets/img/C1F5-BG.webp',
+    '/assets/img/C1F6-BG.webp',
+    '/assets/img/C1F7-BG.webp',
+    '/assets/img/C1F2-BG.webp',
+    '/assets/img/C1F7-BG.webp',
+    '/assets/img/C1F2-BG.webp',
 ];
 
 export default function Kingdom2() {
     const [step, setStep] = useState(0);
+    const { playVoice, stopVoice, stopSFX } = useAudio() ?? {};
     const bgImg = BG_IMGS[step];
+
+    useEffect(() => {
+        stopSFX?.();
+    }, [stopSFX]);
+
+    useEffect(() => {
+        const src = AUDIO.kingdom2?.voice?.[step];
+        if (src && playVoice) playVoice(src);
+    }, [step, playVoice]);
 
     return (
         <>
             <Head title="Chapter 1: The Kingdom of Clutter" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 <img
                     key={bgImg}
                     src={bgImg}
@@ -41,14 +55,14 @@ export default function Kingdom2() {
                     className="absolute inset-0 w-full h-full object-cover fade-in-soft"
                 />
 
-                {/* Leo at lower left – steps 0 and 1 */}
+                {/* Leo at lower left – steps 0 and 1; step 1 (Who is that?) a little higher */}
                 {step < 2 && (
                     <img
-                        src={step === 0 ? '/assets/img/C1F3-Leopng.png' : '/assets/img/C1F4-Leo.png'}
+                        src={step === 0 ? '/assets/img/C1F3-Leopng.webp' : '/assets/img/C1F4-Leo.webp'}
                         alt="Leo"
                         loading="eager"
                         decoding="async"
-                        className="absolute -bottom-[18%] left-[2%] w-[min(80vw,900px)] h-auto object-contain object-bottom pointer-events-none"
+                        className={`absolute left-[2%] w-[min(80vw,900px)] h-auto object-contain object-bottom pointer-events-none ${step === 1 ? 'bottom-[5%]' : '-bottom-[18%]'}`}
                         aria-hidden
                     />
                 )}
@@ -56,7 +70,7 @@ export default function Kingdom2() {
                 {/* Marky on left – step 2 (throne room) */}
                 {step === 2 && (
                     <img
-                        src="/assets/img/Marky2.png"
+                        src="/assets/img/Marky2.webp"
                         alt="Marky"
                         loading="eager"
                         decoding="async"
@@ -68,7 +82,7 @@ export default function Kingdom2() {
                 {/* Leo on right – step 3 only (addressing King Crumble) */}
                 {step === 3 && (
                     <img
-                        src="/assets/img/C1F6-Leo.png"
+                        src="/assets/img/C1F6-Leo.webp"
                         alt="Leo"
                         loading="eager"
                         decoding="async"
@@ -80,7 +94,7 @@ export default function Kingdom2() {
                 {/* Leo in right corner – step 5 only (cluttered room, cleaning idea) */}
                 {step === 5 && (
                     <img
-                        src="/assets/img/Leo1-left.png"
+                        src="/assets/img/Leo1-left.webp"
                         alt="Leo"
                         loading="eager"
                         decoding="async"
@@ -92,7 +106,7 @@ export default function Kingdom2() {
                 {/* Leo in lower right – step 7 (encouraging to help the King) */}
                 {step >= 7 && (
                     <img
-                        src="/assets/img/C1F10-LEO.png"
+                        src="/assets/img/C1F10-LEO.webp"
                         alt="Leo"
                         loading="eager"
                         decoding="async"
@@ -109,7 +123,7 @@ export default function Kingdom2() {
                                 {SPEAKERS[step]}
                             </div>
                             <div className="h-px bg-white/30 mb-2" aria-hidden />
-                            <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                            <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                 {NARRATIONS[step]}
                             </div>
                         </div>
@@ -118,8 +132,10 @@ export default function Kingdom2() {
                             className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                             onClick={() => {
                                 if (step < NARRATIONS.length - 1) {
+                                    stopVoice?.();
                                     setStep(step + 1);
                                 } else {
+                                    stopVoice?.();
                                     // Navigate to kingdom3 after last step
                                     router.visit(route('mainplay.kingdom3'));
                                 }

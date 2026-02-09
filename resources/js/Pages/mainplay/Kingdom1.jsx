@@ -1,11 +1,20 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
 import { useState, useEffect } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
 
 const FALL_DURATION_MS = 2500;
+const SFX_FALLING = '/assets/audio/bgm/sfx 1 - Falling.mp3';
 
 export default function Kingdom1() {
+    const { playSFX } = useAudio() ?? {};
     const [showNarration, setShowNarration] = useState(false);
     const [showMarky, setShowMarky] = useState(false);
+
+    useEffect(() => {
+        playSFX?.(SFX_FALLING);
+        // Only play once on mount (Leo falling)
+    }, []);
 
     useEffect(() => {
         // Show narration and Marky only after Leo has stopped falling
@@ -23,8 +32,9 @@ export default function Kingdom1() {
         <>
             <Head title="Chapter 1: The Kingdom of Clutter" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 <img
-                    src="/assets/img/C1F2-BG.png"
+                    src="/assets/img/C1F2-BG.webp"
                     alt="Kingdom of Clutter"
                     loading="eager"
                     decoding="async"
@@ -33,7 +43,7 @@ export default function Kingdom1() {
 
                 {/* Falling Leo from top left to lower left - remains visible after landing */}
                 <img
-                    src="/assets/img/C1F2-Leo.png"
+                    src="/assets/img/C1F2-Leo.webp"
                     alt="Leo"
                     loading="eager"
                     decoding="async"
@@ -45,11 +55,11 @@ export default function Kingdom1() {
                 {/* Marky fades in at upper right after Leo stops falling */}
                 {showMarky && (
                     <img
-                        src="/assets/img/Marky3.png"
+                        src="/assets/img/Marky3.webp"
                         alt="Marky"
                         loading="eager"
                         decoding="async"
-                        className="absolute top-6 right-16 sm:top-8 sm:right-20 w-[min(25vw,220px)] h-auto object-contain pointer-events-none fade-in-soft"
+                        className="absolute top-6 right-16 sm:top-8 sm:right-20 w-[min(32vw,280px)] h-auto object-contain pointer-events-none fade-in-soft"
                         aria-hidden
                     />
                 )}
@@ -63,7 +73,7 @@ export default function Kingdom1() {
                                     Narrator
                                 </div>
                                 <div className="h-px bg-white/30 mb-2" aria-hidden />
-                                <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                     {narration}
                                 </div>
                             </div>

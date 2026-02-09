@@ -1,7 +1,14 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
 import { useState, useEffect } from 'react';
 
+const KINGDOM3_BGM = '/assets/audio/bgm/BGM - Frame 10 - 14.wav';
+const SFX_CROWN = '/assets/audio/bgm/SFX - My Crown! You found it!.MP3';
+
 export default function Kingdom3() {
+    const { playSFX, playBGM } = useAudio() ?? {};
     const [showNarration, setShowNarration] = useState(false);
     const [placements, setPlacements] = useState({
         toyBox: false,
@@ -18,12 +25,16 @@ export default function Kingdom3() {
     const [shuffledItems, setShuffledItems] = useState([]);
     const [shuffledTargets, setShuffledTargets] = useState([]);
 
+    useEffect(() => {
+        if (KINGDOM3_BGM && playBGM) playBGM(KINGDOM3_BGM, true);
+    }, [playBGM]);
+
     // Shuffle items on mount
     useEffect(() => {
         const items = [
-            { id: 'banana', src: '/assets/img/stuff/BananaGlow.png', alt: 'Banana' },
-            { id: 'socks', src: '/assets/img/stuff/SocksGlow.png', alt: 'Socks' },
-            { id: 'robot', src: '/assets/img/stuff/RobotGlow.png', alt: 'Robot' },
+{ id: 'banana', src: '/assets/img/stuff/BananaGlow.webp', alt: 'Banana' },
+   { id: 'socks', src: '/assets/img/stuff/SocksGlow.webp', alt: 'Socks' },
+   { id: 'robot', src: '/assets/img/stuff/RobotGlow.webp', alt: 'Robot' },
         ];
         // Fisher-Yates shuffle algorithm
         const shuffled = [...items];
@@ -36,20 +47,20 @@ export default function Kingdom3() {
         const targets = [
             { 
                 id: 'toyBox', 
-                src: '/assets/img/stuff/ToyBox.png',
-                filledSrc: '/assets/img/stuff/ToyBoxRobot.png',
+src: '/assets/img/stuff/ToyBox.webp',
+   filledSrc: '/assets/img/stuff/ToyBoxRobot.webp',
                 alt: 'Toy Box'
             },
             { 
                 id: 'bin', 
-                src: '/assets/img/stuff/Bin.png',
-                filledSrc: '/assets/img/stuff/BinWithBanana.png',
+src: '/assets/img/stuff/Bin.webp',
+   filledSrc: '/assets/img/stuff/BinWithBanana.webp',
                 alt: 'Trash Bin'
             },
             { 
                 id: 'hamper', 
-                src: '/assets/img/stuff/Hamper.png',
-                filledSrc: '/assets/img/stuff/HamperWSocks.png',
+src: '/assets/img/stuff/Hamper.webp',
+   filledSrc: '/assets/img/stuff/HamperWSocks.webp',
                 alt: 'Laundry Hamper'
             },
         ];
@@ -68,6 +79,10 @@ export default function Kingdom3() {
             setAllPlaced(true);
         }
     }, [placements]);
+
+    useEffect(() => {
+        if (allPlaced && playSFX) playSFX(SFX_CROWN);
+    }, [allPlaced, playSFX]);
 
     // Navigate to kingdom-end after crown appears (with delay to let animation play)
     useEffect(() => {
@@ -99,6 +114,7 @@ export default function Kingdom3() {
             (target === 'hamper' && item === 'socks');
 
         if (isCorrect) {
+            playSFX?.(AUDIO.sfx?.correct);
             // Correct drop: update placement and hide the item
             setPlacements((prev) => {
                 if (target === 'toyBox') return { ...prev, toyBox: true };
@@ -108,6 +124,7 @@ export default function Kingdom3() {
             });
             setPlacedItems((prev) => ({ ...prev, [item]: true }));
         } else {
+            playSFX?.(AUDIO.sfx?.incorrect);
             // Wrong drop: trigger shake and red glow
             setWrongDropTarget(target);
             setTimeout(() => setWrongDropTarget(null), 2000); // Reset after 2 seconds
@@ -129,10 +146,11 @@ export default function Kingdom3() {
         <>
             <Head title="Chapter 1: The Kingdom of Clutter" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 {/* Darkened background */}
                 <div className="absolute inset-0">
                     <img
-                        src="/assets/img/C1F2-BG.png"
+                        src="/assets/img/C1F2-BG.webp"
                         alt="Kingdom of Clutter"
                         loading="eager"
                         decoding="async"
@@ -149,7 +167,7 @@ export default function Kingdom3() {
                 }`} style={allPlaced ? { top: '-160px', marginTop: 0, paddingTop: 0 } : {}}>
                     {allPlaced ? (
                         <img
-                            src="/assets/img/stuff/Crown.png"
+                            src="/assets/img/stuff/Crown.webp"
                             alt="Crown"
                             loading="eager"
                             decoding="async"
@@ -207,7 +225,7 @@ export default function Kingdom3() {
                                     DIRECTION
                                 </div>
                                 <div className="h-px bg-white/50 mb-2" aria-hidden />
-                                <div className="cartoon-thin text-xl sm:text-2xl font-bold leading-relaxed drop-shadow text-left text-white">
+                                <div className="cartoon-thin narration-text text-xl sm:text-2xl font-bold leading-relaxed drop-shadow text-left text-white">
                                     Move things to the right place!
                                 </div>
                             </div>

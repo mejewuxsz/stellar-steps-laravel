@@ -1,4 +1,6 @@
 import { Head, router, usePage } from '@inertiajs/react';
+import { useSettings } from '@/contexts/SettingsContext';
+import { useAudio } from '@/contexts/AudioContext';
 import { useState, useEffect } from 'react';
 import { CircleUserRound, Undo2 } from 'lucide-react';
 
@@ -111,18 +113,23 @@ const STAGE_ILLUSTRATIONS = [
 
 export default function Mainplay() {
     const page = usePage();
-    const { auth } = page.props || {};
-    const fromPrologueCastleHint = page.url?.includes('prologue_castle_hint=1');
-    const fromChapter1Complete = page.url?.includes('chapter1_complete=1');
+    const { auth, initialProgress } = page.props || {};
     const user = auth?.user ?? null;
     const [scale, setScale] = useState(getLayoutScale);
     const [showProfileExtension, setShowProfileExtension] = useState(false);
     const [profileClosing, setProfileClosing] = useState(false);
     const [showWoodenSign, setShowWoodenSign] = useState(false);
     const [woodenSignClosing, setWoodenSignClosing] = useState(false);
-    /** Which stages are cleared (1–5). Cleared = illustration shows C, button shows Replay. */
-    const [clearedStages, setClearedStages] = useState([false, false, false, false, false]);
-    // Prologue intro now lives at /mainplay/prologue-intro (separate page)
+    const [showSettingsBoard, setShowSettingsBoard] = useState(false);
+    const [settingsBoardClosing, setSettingsBoardClosing] = useState(false);
+    const { screenBrightness, textSize, updateSettings } = useSettings() ?? { screenBrightness: 100, textSize: 100, updateSettings: () => {} };
+    const { volume, muted, updateVolume, updateMuted, stopBGM } = useAudio() ?? { volume: 80, muted: false, updateVolume: () => {}, updateMuted: () => {}, stopBGM: () => {} };
+    /** Which stages are cleared (1–5). From server (user-specific) or URL params. */
+    const [clearedStages, setClearedStages] = useState(() => {
+        const p = initialProgress?.clearedStages;
+        return Array.isArray(p) && p.length === 5 ? p.map(Boolean) : [false, false, false, false, false];
+    });
+    const goldStarCount = initialProgress?.goldStars ?? 0;
 
     /** Button state for stage index (0–4): 0 Locked, 1 Play, 2 Replay. Stage 1 is always Play or Replay. */
     function getStageButtonState(stageIndex) {
@@ -148,6 +155,16 @@ export default function Mainplay() {
             router.visit(route('mainplay.chapter2-intro'));
             return;
         }
+        // Stage 4 (Clouds/Chapter 3): both Play and Replay go to Chapter 3 intro
+        if (stageIndex === 3 && (state === 1 || state === 2)) {
+            router.visit(route('mainplay.chapter3-intro'));
+            return;
+        }
+        // Stage 5 (Epilogue): both Play and Replay go to Epilogue intro
+        if (stageIndex === 4 && (state === 1 || state === 2)) {
+            router.visit(route('mainplay.epilogue-intro'));
+            return;
+        }
         if (state !== 1) return; // for other stages, only Play clears
         setClearedStages((prev) => {
             const next = [...prev];
@@ -157,32 +174,22 @@ export default function Mainplay() {
     }
 
     useEffect(() => {
+        stopBGM?.();
+    }, [stopBGM]);
+
+    useEffect(() => {
         const onResize = () => setScale(getLayoutScale());
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
     }, []);
 
-    // If we came back from the prologue end "Let's go!" screen, mark Stage 1 as cleared
-    // so the castle stage becomes playable and we can show a gentle hint.
+    // Sync clearedStages when initialProgress changes (e.g. after returning from completion screen)
     useEffect(() => {
-        if (!fromPrologueCastleHint) return;
-        setClearedStages((prev) => {
-            const next = [...prev];
-            next[0] = true;
-            return next;
-        });
-    }, [fromPrologueCastleHint]);
-
-    // If we came back from kingdom-complete-star "Back to the Map", mark prologue and Chapter 1 (castle) as completed.
-    useEffect(() => {
-        if (!fromChapter1Complete) return;
-        setClearedStages((prev) => {
-            const next = [...prev];
-            next[0] = true; // Prologue (required to reach Chapter 1)
-            next[1] = true; // Stage 2 = castle = Chapter 1
-            return next;
-        });
-    }, [fromChapter1Complete]);
+        const p = initialProgress?.clearedStages;
+        if (Array.isArray(p) && p.length === 5) {
+            setClearedStages(p.map(Boolean));
+        }
+    }, [initialProgress?.clearedStages]);
 
     function toggleProfileExtension() {
         if (showProfileExtension && !profileClosing) {
@@ -212,9 +219,130 @@ export default function Mainplay() {
         return () => clearTimeout(t);
     }, [woodenSignClosing]);
 
+    useEffect(() => {
+        if (!settingsBoardClosing) return;
+        const t = setTimeout(() => {
+            setShowSettingsBoard(false);
+            setSettingsBoardClosing(false);
+        }, 250);
+        return () => clearTimeout(t);
+    }, [settingsBoardClosing]);
+
     return (
         <>
             <Head title="Main Play" />
+            {/* Settings board popup – appears when Settings is clicked */}
+            {(showSettingsBoard || settingsBoardClosing) && (
+                <div
+                    className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+                    aria-modal="true"
+                    role="dialog"
+                    aria-label="Settings"
+                >
+                    <button
+                        type="button"
+                        onClick={() => setSettingsBoardClosing(true)}
+                        className="absolute inset-0 bg-black/50 cursor-pointer"
+                        aria-label="Close settings"
+                    />
+                    <div className={`relative z-10 max-w-6xl w-full ${settingsBoardClosing ? 'animate-bounce-out' : 'animate-bounce-in'}`}>
+                        <img
+                            src="/assets/img/settingboard.webp"
+                            alt="Settings"
+                            loading="eager"
+                            decoding="async"
+                            className="w-full h-auto object-contain drop-shadow-2xl pointer-events-none select-none"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setSettingsBoardClosing(true)}
+                            className="absolute top-8 right-8 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-amber-700 bg-amber-100/90 flex items-center justify-center hover:bg-amber-200/90 transition-colors cursor-pointer"
+                            aria-label="Close settings"
+                        >
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-amber-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        {/* Settings content – overlaid on the board */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 sm:gap-10 pt-[18%] pb-[20%] px-[12%] pointer-events-none">
+                            <div className="pointer-events-auto flex flex-col items-center gap-8 w-full max-w-md">
+                                {/* Screen Brightness – vertical slider with sun icon */}
+                                <div className="flex flex-col items-center gap-2 w-full">
+                                    <label className="cartoon-thin text-white text-2xl sm:text-3xl md:text-4xl font-bold whitespace-nowrap leading-tight animate-glow-blink [filter:drop-shadow(0_0_4px_#fef08a)_drop-shadow(0_0_12px_#facc15)_drop-shadow(0_0_24px_#eab308)]">
+                                        Screen Brightness
+                                    </label>
+                                    <div className="settings-slider-wrap mt-2 w-full" style={{ ['--slider-complete']: (screenBrightness - 50) / 50 }}>
+                                        <div className="settings-slider-track">
+                                            <div className="settings-slider-progress" />
+                                        </div>
+                                        <span className="settings-slider-percent cartoon-thin text-gray-800 text-xl font-bold drop-shadow">{screenBrightness}%</span>
+                                        <input
+                                            type="range"
+                                            id="brightness"
+                                            min="50"
+                                            max="100"
+                                            value={screenBrightness}
+                                            onChange={(e) => updateSettings({ screenBrightness: Number(e.target.value) })}
+                                        />
+                                    </div>
+                                </div>
+                                {/* Text Size – vertical slider with font icon */}
+                                <div className="flex flex-col items-center gap-2 w-full">
+                                    <label className="cartoon-thin text-white text-2xl sm:text-3xl md:text-4xl font-bold whitespace-nowrap leading-tight animate-glow-blink [filter:drop-shadow(0_0_4px_#fef08a)_drop-shadow(0_0_12px_#facc15)_drop-shadow(0_0_24px_#eab308)]">
+                                        Text Size
+                                    </label>
+                                    <div className="settings-slider-wrap mt-2 w-full" style={{ ['--slider-complete']: (textSize - 80) / 120 }}>
+                                        <div className="settings-slider-track">
+                                            <div className="settings-slider-progress" />
+                                        </div>
+                                        <span className="settings-slider-percent cartoon-thin text-gray-800 text-xl font-bold drop-shadow">{textSize}%</span>
+                                        <input
+                                            type="range"
+                                            id="text-size"
+                                            min="80"
+                                            max="200"
+                                            value={textSize}
+                                            onChange={(e) => updateSettings({ textSize: Number(e.target.value) })}
+                                        />
+                                    </div>
+                                </div>
+                                {/* Volume */}
+                                <div className="flex flex-col items-center gap-2 w-full">
+                                    <label className="cartoon-thin text-white text-2xl sm:text-3xl md:text-4xl font-bold whitespace-nowrap leading-tight animate-glow-blink [filter:drop-shadow(0_0_4px_#fef08a)_drop-shadow(0_0_12px_#facc15)_drop-shadow(0_0_24px_#eab308)]">
+                                        Volume
+                                    </label>
+                                    <div className="settings-slider-wrap mt-2 w-full" style={{ ['--slider-complete']: volume / 100 }}>
+                                        <div className="settings-slider-track">
+                                            <div className="settings-slider-progress" />
+                                        </div>
+                                        <span className="settings-slider-percent cartoon-thin text-gray-800 text-xl font-bold drop-shadow">{volume}%</span>
+                                        <input
+                                            type="range"
+                                            id="volume"
+                                            min="0"
+                                            max="100"
+                                            value={volume}
+                                            onChange={(e) => updateVolume(Number(e.target.value))}
+                                        />
+                                    </div>
+                                </div>
+                                {/* Mute */}
+                                <div className="flex items-center gap-3">
+                                    <label className="cartoon-thin text-white text-xl sm:text-2xl font-bold">Mute</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => updateMuted(!muted)}
+                                        className={`w-14 h-8 rounded-full transition-colors ${muted ? 'bg-amber-600' : 'bg-amber-200'}`}
+                                        aria-pressed={muted}
+                                    >
+                                        <span className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${muted ? 'translate-x-1' : 'translate-x-7'}`} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div
                 className="relative w-full h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
                 style={{ backgroundImage: "url('/assets/img/LP_BG.webp')" }}
@@ -235,7 +363,7 @@ export default function Mainplay() {
                         className="main-nav relative z-30 flex-shrink-0 flex items-center justify-center gap-3 sm:gap-4 w-full pt-0 pb-2 sm:pb-3 px-2 sm:px-4 min-h-[148px] sm:min-h-[164px] -mt-1 animate-slide-down-in"
                     >
                     {(tabsStatic.map((tab) => {
-                        if (tab.id === 'stars') return { ...tab, content: <StarsTabContent goldStarCount={clearedStages[1] ? 1 : 0} /> };
+                        if (tab.id === 'stars') return { ...tab, content: <StarsTabContent goldStarCount={goldStarCount} /> };
                         if (tab.id === 'menu' && (showWoodenSign || woodenSignClosing)) {
                             return { ...tab, content: <Undo2 className="w-[5.5rem] h-[5.5rem] sm:w-[6rem] sm:h-[6rem] text-white animate-glow-blink group-hover:animate-none group-hover:opacity-100 [filter:drop-shadow(0_0_4px_#fef08a)_drop-shadow(0_0_12px_#facc15)_drop-shadow(0_0_24px_#eab308)]" aria-hidden /> };
                         }
@@ -276,7 +404,7 @@ export default function Mainplay() {
                             <img
                                 src="/assets/img/openbook.webp"
                                 alt="Story book opened"
-                                fetchPriority="high"
+                                fetchpriority="high"
                                 decoding="async"
                                 className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-2xl pointer-events-none select-none block"
                             />
@@ -405,6 +533,7 @@ export default function Mainplay() {
                                 <div className="absolute top-[12%] bottom-[42%] left-0 right-0 flex flex-col items-center justify-center gap-6 sm:gap-8 pointer-events-none">
                                     <button
                                         type="button"
+                                        onClick={() => setShowSettingsBoard(true)}
                                         className="cartoon-thin text-white text-2xl sm:text-3xl md:text-4xl font-bold whitespace-nowrap leading-tight animate-glow-blink [filter:drop-shadow(0_0_4px_#fef08a)_drop-shadow(0_0_12px_#facc15)_drop-shadow(0_0_24px_#eab308)] pointer-events-auto cursor-pointer bg-transparent border-none outline-none py-1 px-2 rounded transition-all duration-200 hover:scale-110 hover:brightness-125 hover:[filter:drop-shadow(0_0_6px_#fef08a)_drop-shadow(0_0_16px_#facc15)_drop-shadow(0_0_28px_#eab308)]"
                                         aria-label="Settings"
                                     >

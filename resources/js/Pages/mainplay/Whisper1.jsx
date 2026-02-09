@@ -1,13 +1,26 @@
 import { Head, router } from '@inertiajs/react';
+import BackToMapButton from '@/Components/BackToMapButton';
+import { useEffect } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
 
 export default function Whisper1() {
+    const { playVoice } = useAudio() ?? {};
+    useEffect(() => {
+        const nav = performance.getEntriesByType?.('navigation')?.[0];
+        const isReload = nav?.type === 'reload';
+        if (isReload) return;
+        const src = AUDIO.whisper1?.voice?.[0];
+        if (src && playVoice) playVoice(src);
+    }, [playVoice]);
     return (
         <>
             <Head title="Whisper 1 - The Whispering Woods" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
+                <BackToMapButton />
                 {/* Background image */}
                 <img
-                    src="/assets/img/whisperingwoods/bg 4.png"
+                    src="/assets/img/whisperingwoods/bg 4.webp"
                     alt="Whispering Woods"
                     loading="eager"
                     decoding="async"
@@ -16,7 +29,7 @@ export default function Whisper1() {
 
                 {/* Leo in foreground, looking into the woods – nudged a bit closer to Marky */}
                 <img
-                    src="/assets/img/whisperingwoods/Leo looking-left.png"
+                    src="/assets/img/whisperingwoods/Leo looking-left.webp"
                     alt="Leo"
                     loading="eager"
                     decoding="async"
@@ -26,7 +39,7 @@ export default function Whisper1() {
 
                 {/* Marky floating on the right – slightly bigger than Leo (match Leo's style) */}
                 <img
-                    src="/assets/img/Marky2-left.png"
+                    src="/assets/img/Marky2-left.webp"
                     alt="Marky"
                     loading="eager"
                     decoding="async"
@@ -42,7 +55,7 @@ export default function Whisper1() {
                                 Narrator
                             </div>
                             <div className="h-px bg-white/30 mb-2" aria-hidden />
-                            <div className="cartoon-thin text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                            <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
                                 Leo has arrived in the Whispering Woods. It is quiet here. Too quiet. The trees appear to be on guard of him.
                             </div>
                         </div>
