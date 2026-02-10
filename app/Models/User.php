@@ -24,6 +24,7 @@ class User extends Authenticatable
         'role',
         'age',
         'hero_code',
+        'linked_hero_code',
         'stages_completed',
         'gold_stars',
     ];

@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import BackToMapButton from '@/Components/BackToMapButton';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAudio } from '@/contexts/AudioContext';
 import { AUDIO } from '@/config/audio';
 
@@ -27,30 +27,71 @@ const CHOICE_B = 'Excuse me, po, Mr. Guardian? May I speak with you?';
 const CHOICE_A_STEP6 = 'Open this right now!';
 const CHOICE_B_STEP6 = 'I ask you to open the door, po.';
 
+function shuffleChoices(incorrect, correct) {
+    return Math.random() < 0.5 ? [incorrect, correct] : [correct, incorrect];
+}
+
 export default function Cloud5() {
     const { playVoice, stopVoice, playSFX } = useAudio() ?? {};
     const [step, setStep] = useState(1);
     const [showStar, setShowStar] = useState(false);
     const [starClicked, setStarClicked] = useState(false);
+    const [step11VoiceDone, setStep11VoiceDone] = useState(false);
+    const step11PlayedRef = useRef(false);
+    const choicesStep2Ref = useRef(null);
+    const choicesStep6Ref = useRef(null);
 
-    const handleChoice = (choice) => {
+    const handleChoice = (isCorrect) => {
         stopVoice?.();
-        if (choice === 'B') {
+        if (!isCorrect && AUDIO.sfx?.incorrect && playSFX) playSFX(AUDIO.sfx.incorrect);
+        if (isCorrect) {
+            if (AUDIO.sfx?.correct && playSFX) playSFX(AUDIO.sfx.correct);
             setStep(3);
         }
     };
 
-    const handleChoiceStep6 = (choice) => {
+    const handleChoiceStep6 = (isCorrect) => {
         stopVoice?.();
-        if (choice === 'B') {
+        if (!isCorrect && AUDIO.sfx?.incorrect && playSFX) playSFX(AUDIO.sfx.incorrect);
+        if (isCorrect) {
+            if (AUDIO.sfx?.correct && playSFX) playSFX(AUDIO.sfx.correct);
             setStep(7);
         }
     };
 
+    // Dedicated effect for step 11 (Marky) — isolated so step 10's stopVoice never interferes
+    useEffect(() => {
+        if (step !== 11) {
+            step11PlayedRef.current = false;
+            return;
+        }
+        setStep11VoiceDone(false);
+        const src = AUDIO.cloud5?.voice?.[10];
+        if (!src || !playVoice) {
+            setStep11VoiceDone(true);
+            return;
+        }
+        if (step11PlayedRef.current) return;
+        step11PlayedRef.current = true;
+        playVoice(src, 1, () => setStep11VoiceDone(true));
+        // Fallback: enable Next after 12s if voice fails/errors (onEnded never fires)
+        const fallback = setTimeout(() => setStep11VoiceDone(true), 12000);
+        return () => clearTimeout(fallback);
+    }, [step, playVoice]);
+
     useEffect(() => {
         const src = AUDIO.cloud5?.voice?.[step - 1];
-        if (src && playVoice) playVoice(src);
-        else if (step !== 12) stopVoice?.(); // step 12 has no voice; don't stop so Marky (step 11) can finish
+        if (step === 4 && AUDIO.cloud5?.happyStoneGuardianStep4 && src && playVoice && playSFX) {
+            // Step 4: play Happy Stone Guardian and narration (GATE3) together
+            playSFX(AUDIO.cloud5.happyStoneGuardianStep4);
+            playVoice(src);
+        } else if (step === 11) {
+            // Step 11 handled by dedicated effect above — do not stopVoice
+        } else if (src && playVoice) {
+            playVoice(src);
+        } else if (step !== 12 && step !== 10) {
+            stopVoice?.();
+        }
         if (step === 9 && AUDIO.cloud5?.stoneGuardianCracks && playSFX) playSFX(AUDIO.cloud5.stoneGuardianCracks);
     }, [step, playVoice, stopVoice, playSFX]);
 
@@ -63,6 +104,11 @@ export default function Cloud5() {
             const t = setTimeout(() => setStep(11), 1000);
             return () => clearTimeout(t);
         }
+    }, [step]);
+
+    useEffect(() => {
+        if (step !== 2) choicesStep2Ref.current = null;
+        if (step !== 6) choicesStep6Ref.current = null;
     }, [step]);
 
     useEffect(() => {
@@ -92,7 +138,7 @@ export default function Cloud5() {
 
                 {/* Door - Stone Guardian */}
                 <img
-                    src={encodeURI(step === 9 ? DOOR_STEP9 : step === 10 || step === 11 || step === 12 ? DOOR_STEP10 : step === 4 || step === 5 || step === 6 || step === 7 || step === 8 ? DOOR_STEP4 : DOOR_SLEEPING)}
+                    src={encodeURI(step === 9 ? DOOR_STEP9 : step === 10 || step === 11 || step === 12 ? DOOR_STEP10 : step === 4 || step === 5 || step === 8 ? DOOR_STEP4 : DOOR_SLEEPING)}
                     alt="Stone Guardian"
                     className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[min(85vw,800px)] h-auto object-contain object-bottom pointer-events-none"
                     loading="eager"
@@ -153,25 +199,36 @@ export default function Cloud5() {
                     </div>
                 )}
 
-                {/* Step 2: Pop-up questions */}
-                {step === 2 && (
-                    <div className="absolute right-4 sm:right-10 bottom-6 sm:bottom-8 left-4 sm:left-auto sm:max-w-sm z-[110] flex flex-col gap-3">
-                        <button
-                            type="button"
-                            className="rounded-xl bg-gray-800/90 text-white px-4 py-3 text-left text-sm sm:text-base border border-white/30 hover:bg-gray-700/90 transition-colors cartoon-thin"
-                            onClick={() => handleChoice('A')}
-                        >
-                            Choice A: {CHOICE_A}
-                        </button>
-                        <button
-                            type="button"
-                            className="rounded-xl bg-gray-800/90 text-white px-4 py-3 text-left text-sm sm:text-base border border-white/30 hover:bg-gray-700/90 transition-colors cartoon-thin"
-                            onClick={() => handleChoice('B')}
-                        >
-                            Choice B: {CHOICE_B}
-                        </button>
-                    </div>
-                )}
+                {/* Step 2: Pop-up questions — overlay with darkened background, centered and larger */}
+                {step === 2 && (() => {
+                    if (!choicesStep2Ref.current) {
+                        choicesStep2Ref.current = shuffleChoices(
+                            { text: CHOICE_A, isCorrect: false },
+                            { text: CHOICE_B, isCorrect: true }
+                        );
+                    }
+                    const choices = choicesStep2Ref.current;
+                    return (
+                        <div className="fixed inset-0 z-[110] bg-black/50 flex items-center justify-center p-4 sm:p-6">
+                            <div className="flex flex-col gap-4 sm:gap-5 w-full max-w-xl">
+                                <button
+                                    type="button"
+                                    className="rounded-2xl bg-gray-800/95 text-white px-6 py-5 sm:px-8 sm:py-6 text-left text-base sm:text-lg border border-white/30 hover:bg-gray-700/95 transition-colors cartoon-thin"
+                                    onClick={() => handleChoice(choices[0].isCorrect)}
+                                >
+                                    Choice A: {choices[0].text}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="rounded-2xl bg-gray-800/95 text-white px-6 py-5 sm:px-8 sm:py-6 text-left text-base sm:text-lg border border-white/30 hover:bg-gray-700/95 transition-colors cartoon-thin"
+                                    onClick={() => handleChoice(choices[1].isCorrect)}
+                                >
+                                    Choice B: {choices[1].text}
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })()}
 
                 {/* Step 3: Leo's narration */}
                 {step === 3 && (
@@ -250,25 +307,36 @@ export default function Cloud5() {
                     </div>
                 )}
 
-                {/* Step 6: Pop-up questions — same content as step 2, different choices */}
-                {step === 6 && (
-                    <div className="absolute right-4 sm:right-10 bottom-6 sm:bottom-8 left-4 sm:left-auto sm:max-w-sm z-[110] flex flex-col gap-3">
-                        <button
-                            type="button"
-                            className="rounded-xl bg-gray-800/90 text-white px-4 py-3 text-left text-sm sm:text-base border border-white/30 hover:bg-gray-700/90 transition-colors cartoon-thin"
-                            onClick={() => handleChoiceStep6('A')}
-                        >
-                            Choice A: {CHOICE_A_STEP6}
-                        </button>
-                        <button
-                            type="button"
-                            className="rounded-xl bg-gray-800/90 text-white px-4 py-3 text-left text-sm sm:text-base border border-white/30 hover:bg-gray-700/90 transition-colors cartoon-thin"
-                            onClick={() => handleChoiceStep6('B')}
-                        >
-                            Choice B: {CHOICE_B_STEP6}
-                        </button>
-                    </div>
-                )}
+                {/* Step 6: Pop-up questions — overlay with darkened background, centered and larger */}
+                {step === 6 && (() => {
+                    if (!choicesStep6Ref.current) {
+                        choicesStep6Ref.current = shuffleChoices(
+                            { text: CHOICE_A_STEP6, isCorrect: false },
+                            { text: CHOICE_B_STEP6, isCorrect: true }
+                        );
+                    }
+                    const choices = choicesStep6Ref.current;
+                    return (
+                        <div className="fixed inset-0 z-[110] bg-black/50 flex items-center justify-center p-4 sm:p-6">
+                            <div className="flex flex-col gap-4 sm:gap-5 w-full max-w-xl">
+                                <button
+                                    type="button"
+                                    className="rounded-2xl bg-gray-800/95 text-white px-6 py-5 sm:px-8 sm:py-6 text-left text-base sm:text-lg border border-white/30 hover:bg-gray-700/95 transition-colors cartoon-thin"
+                                    onClick={() => handleChoiceStep6(choices[0].isCorrect)}
+                                >
+                                    Choice A: {choices[0].text}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="rounded-2xl bg-gray-800/95 text-white px-6 py-5 sm:px-8 sm:py-6 text-left text-base sm:text-lg border border-white/30 hover:bg-gray-700/95 transition-colors cartoon-thin"
+                                    onClick={() => handleChoiceStep6(choices[1].isCorrect)}
+                                >
+                                    Choice B: {choices[1].text}
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })()}
 
                 {/* Step 7: Leo's narration — same content as step 3, different text */}
                 {step === 7 && (
@@ -343,8 +411,9 @@ export default function Cloud5() {
                             </div>
                             <button
                                 type="button"
-                                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => { setStep(12); }}
+                                disabled={!step11VoiceDone}
+                                className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center transition-colors ${step11VoiceDone ? 'border-yellow-400 bg-yellow-300 hover:bg-yellow-200 cursor-pointer' : 'border-yellow-400/50 bg-yellow-300/50 cursor-not-allowed opacity-70'}`}
+                                onClick={() => { if (step11VoiceDone) setStep(12); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

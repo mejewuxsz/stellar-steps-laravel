@@ -122,7 +122,7 @@ export function AudioProvider({ children }) {
     }, []);
 
     const playSFX = useCallback(
-        (src) => {
+        (src, onEnded) => {
             if (!src) return;
             if (sfxRef.current) {
                 sfxRef.current.pause();
@@ -135,6 +135,7 @@ export function AudioProvider({ children }) {
             sfxRef.current = audio;
             audio.onended = () => {
                 sfxRef.current = null;
+                if (typeof onEnded === 'function') onEnded();
             };
         },
         [getGain]

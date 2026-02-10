@@ -122,6 +122,8 @@ export default function Mainplay() {
     const [woodenSignClosing, setWoodenSignClosing] = useState(false);
     const [showSettingsBoard, setShowSettingsBoard] = useState(false);
     const [settingsBoardClosing, setSettingsBoardClosing] = useState(false);
+    const [showProgressBoard, setShowProgressBoard] = useState(false);
+    const [progressBoardClosing, setProgressBoardClosing] = useState(false);
     const { screenBrightness, textSize, updateSettings } = useSettings() ?? { screenBrightness: 100, textSize: 100, updateSettings: () => {} };
     const { volume, muted, updateVolume, updateMuted, stopBGM } = useAudio() ?? { volume: 80, muted: false, updateVolume: () => {}, updateMuted: () => {}, stopBGM: () => {} };
     /** Which stages are cleared (1–5). From server (user-specific) or URL params. */
@@ -227,6 +229,15 @@ export default function Mainplay() {
         }, 250);
         return () => clearTimeout(t);
     }, [settingsBoardClosing]);
+
+    useEffect(() => {
+        if (!progressBoardClosing) return;
+        const t = setTimeout(() => {
+            setShowProgressBoard(false);
+            setProgressBoardClosing(false);
+        }, 250);
+        return () => clearTimeout(t);
+    }, [progressBoardClosing]);
 
     return (
         <>
@@ -343,6 +354,65 @@ export default function Mainplay() {
                     </div>
                 </div>
             )}
+            {/* Progress board popup – appears when Stars tab is clicked */}
+            {(showProgressBoard || progressBoardClosing) && (
+                <div
+                    className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+                    aria-modal="true"
+                    role="dialog"
+                    aria-label="Progress"
+                >
+                    <button
+                        type="button"
+                        onClick={() => setProgressBoardClosing(true)}
+                        className="absolute inset-0 bg-black/50 cursor-pointer"
+                        aria-label="Close progress"
+                    />
+                    <div className={`relative z-10 max-w-6xl w-full ${progressBoardClosing ? 'animate-bounce-out' : 'animate-bounce-in'}`}>
+                        <img
+                            src="/assets/img/settingboard.webp"
+                            alt="Progress"
+                            loading="eager"
+                            decoding="async"
+                            className="w-full h-auto object-contain drop-shadow-2xl pointer-events-none select-none"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setProgressBoardClosing(true)}
+                            className="absolute top-8 right-8 sm:top-10 sm:right-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-amber-700 bg-amber-100/90 flex items-center justify-center hover:bg-amber-200/90 transition-colors cursor-pointer"
+                            aria-label="Close progress"
+                        >
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-amber-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        {/* Progress content – overlaid on the board */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 sm:gap-6 pt-[12%] pb-[18%] px-[10%] pointer-events-none">
+                            <div className="pointer-events-auto flex flex-col items-stretch gap-4 sm:gap-5 w-full max-w-2xl">
+                                {[
+                                    { title: 'Orderliness & Cleanliness', desc: 'Help the King sort the trash from the toys to tidy up the castle and make the King smile again.', isGold: goldStarCount >= 1 },
+                                    { title: 'Kindness and Empathy', desc: 'Be brave and help the Blue Wolf pull out a painful thorn to make a new friend.', isGold: goldStarCount >= 2 },
+                                    { title: 'Politeness and Respect', desc: "The giant Stone Guardian is fast asleep and won't open for just anyone! Use the magic words 'Please' and 'Thank You' to wake him up and unlock the path home.", isGold: goldStarCount >= 3 },
+                                ].map((item, i) => (
+                                    <div key={i} className="flex items-center gap-4 sm:gap-5 p-4 sm:p-5 rounded-2xl bg-white/10 backdrop-blur-sm border border-amber-200/40">
+                                        <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center">
+                                            {item.isGold ? (
+                                                <img src="/assets/img/Star.webp" alt="" className="w-full h-full object-contain [filter:drop-shadow(0_0_2px_#fef08a)_drop-shadow(0_0_8px_#facc15)_drop-shadow(0_0_16px_#eab308)]" aria-hidden />
+                                            ) : (
+                                                <img src="/assets/img/Graystar.webp" alt="" className="w-full h-full object-contain [filter:drop-shadow(0_0_2px_#1f2937)]" aria-hidden />
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="cartoon-thin text-amber-900 text-lg sm:text-xl font-bold leading-tight mb-1">{item.title}</div>
+                                            <div className="cartoon-thin text-gray-700 text-sm sm:text-base leading-relaxed">{item.desc}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div
                 className="relative w-full h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
                 style={{ backgroundImage: "url('/assets/img/LP_BG.webp')" }}
@@ -375,7 +445,7 @@ export default function Mainplay() {
                         const menuLeftClass = tab.id === 'menu' ? MENU_TAB_TRANSLATE_LEFT : '';
                         const menuStyle = tab.id === 'menu' ? { transform: 'translateX(-15rem)' } : (tab.id !== 'menu' ? { transform: `translateX(${OTHER_TABS_TRANSLATE_RIGHT})` } : undefined);
                         const wrapperProps = isButtonTab
-                            ? { type: 'button', 'aria-label': tab.label || tab.id, title: tab.label || tab.id, style: { ...menuStyle, outline: 'none', boxShadow: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }, className: baseClass + menuLeftClass + ' wood-tab-btn group transition-all duration-200 rounded', ...(tab.id === 'profile' ? { onClick: toggleProfileExtension } : {}), ...(tab.id === 'menu' ? { onClick: () => { if (showWoodenSign && !woodenSignClosing) setWoodenSignClosing(true); else if (!showWoodenSign) setShowWoodenSign(true); } } : {}) }
+                            ? { type: 'button', 'aria-label': tab.label || tab.id, title: tab.label || tab.id, style: { ...menuStyle, outline: 'none', boxShadow: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }, className: baseClass + menuLeftClass + ' wood-tab-btn group transition-all duration-200 rounded', ...(tab.id === 'profile' ? { onClick: toggleProfileExtension } : {}), ...(tab.id === 'menu' ? { onClick: () => { if (showWoodenSign && !woodenSignClosing) setWoodenSignClosing(true); else if (!showWoodenSign) setShowWoodenSign(true); } } : {}), ...(tab.id === 'stars' ? { onClick: () => setShowProgressBoard(true) } : {}) }
                             : { style: menuStyle, className: baseClass + menuLeftClass + ' group transition-all duration-200' };
                         return (
                             <Wrapper key={tab.id} {...wrapperProps}>
@@ -583,7 +653,7 @@ export default function Mainplay() {
                                                             </span>
                                                         ) : user?.role === 'guardian' ? (
                                                             <span className="cartoon-thin text-white text-lg sm:text-xl md:text-2xl font-bold whitespace-nowrap flex flex-col items-center leading-tight animate-glow-blink group-hover:animate-none group-hover:opacity-100 [filter:drop-shadow(0_0_4px_#fef08a)_drop-shadow(0_0_12px_#facc15)_drop-shadow(0_0_24px_#eab308)]">
-                                                                Guardian
+                                                                {user?.linked_hero_name ? `Guardian of ${user.linked_hero_name}` : 'Guardian'}
                                                             </span>
                                                         ) : null}
                                                     </div>

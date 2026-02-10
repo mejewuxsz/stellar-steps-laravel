@@ -131,6 +131,7 @@ class StellarAuthController extends Controller
                 'role' => 'guardian',
                 'age' => null,
                 'hero_code' => null,
+                'linked_hero_code' => $request->hero_code,
             ]);
 
             Auth::login($user);
@@ -150,23 +151,47 @@ class StellarAuthController extends Controller
     }
 
     /**
-     * Log in by name + PIN + role (hero or guardian).
+     * Log in by name or hero_code (hero) / name + hero_code (guardian) + PIN + role.
      */
     public function login(Request $request)
     {
         $this->useMysqlForAuth();
 
-        $request->validate([
-            'name' => 'required|string|max:255',
+        $rules = [
             'pin' => 'required|string|size:4|regex:/^[0-9]{4}$/',
             'role' => 'required|in:hero,guardian',
-        ]);
+        ];
+
+        if ($request->role === 'hero') {
+            $rules['name_or_code'] = 'required|string|max:255';
+        } else {
+            $rules['name'] = 'required|string|max:255';
+            $rules['hero_code'] = 'required|string|max:20';
+        }
+
+        $request->validate($rules);
 
         try {
-            $user = User::where('role', $request->role)->where('name', $request->name)->first();
+            if ($request->role === 'hero') {
+                $nameOrCode = trim($request->name_or_code);
+                $isHeroCode = preg_match('/^[A-Za-z0-9]{4,}-[A-Za-z0-9]{4,}$/', $nameOrCode);
+                $user = $isHeroCode
+                    ? User::where('role', 'hero')->where('hero_code', strtoupper($nameOrCode))->first()
+                    : User::where('role', 'hero')->where('name', $nameOrCode)->first();
+            } else {
+                $trimmedName = trim($request->name);
+                $trimmedCode = strtoupper(trim($request->hero_code));
+                $user = User::where('role', 'guardian')
+                    ->where('name', $trimmedName)
+                    ->where(function ($q) use ($trimmedCode) {
+                        $q->where('linked_hero_code', $trimmedCode)
+                            ->orWhereNull('linked_hero_code');
+                    })
+                    ->first();
+            }
 
             if (!$user || !Hash::check($request->pin, $user->password)) {
-                return back()->withErrors(['pin' => 'Name and PIN do not match.']);
+                return back()->withErrors(['pin' => 'Credentials do not match.']);
             }
 
             Auth::login($user);

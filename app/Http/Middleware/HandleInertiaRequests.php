@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -31,13 +32,20 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
         // Share only safe, serializable user data (avoids 500 if DB columns differ)
-        $authUser = $user ? [
-            'id' => $user->id,
-            'name' => $user->name,
-            'role' => $user->role ?? null,
-            'age' => $user->age ?? null,
-            'hero_code' => $user->hero_code ?? null,
-        ] : null;
+        $authUser = null;
+        if ($user) {
+            $authUser = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'role' => $user->role ?? null,
+                'age' => $user->age ?? null,
+                'hero_code' => $user->hero_code ?? null,
+            ];
+            if ($user->role === 'guardian' && ! empty($user->linked_hero_code)) {
+                $hero = User::where('role', 'hero')->where('hero_code', $user->linked_hero_code)->first();
+                $authUser['linked_hero_name'] = $hero?->name ?? null;
+            }
+        }
 
         return [
             ...parent::share($request),

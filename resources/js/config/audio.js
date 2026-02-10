@@ -142,7 +142,7 @@ export const AUDIO = {
             `${BASE}/Leo/I said OPEN UP!.m4a`,
             `${BASE}/gateofgratitude/GATE1.mp3`, // Stone Guardians: "WHO IS SHOUTING? You are so noisy, little boy. Go away. I am sleeping."
             `${BASE}/Leo/But I have already written the other chapters!.m4a`,
-            `${BASE}/gateofgratitude/grumpy stone guardian.mp3`, // "Have to? I do not even need to do anything with rude children..."
+            `${BASE}/gateofgratitude/GATE2.mp3`, // "Have to? I do not even need to do anything with rude children..."
             `${BASE}/Leo/Oh no… I${'\u2019'}m trapped forever..m4a`,
             `${BASE}/Marky/Marky 18.m4a`, // "Leo, you don't need magic power. You need Word Power. You tell Lola something you want, remember?"
             `${BASE}/Leo/Oh! I know what to do!.m4a`,
@@ -150,6 +150,7 @@ export const AUDIO = {
         ],
         stoneGuardianSfx: `${BASE}/gateofgratitude/_WHO IS SHOUTING_ sfx Stone Guardian.wav`,
         sleepingStoneGuardian: `${BASE}/gateofgratitude/Sleeping Stone Guardian.wav`, // plays on Cloud4 load/reload
+        grumpyStoneGuardian: `${BASE}/gateofgratitude/grumpy stone guardian.mp3`, // plays at end of step 5 voice
     },
 
     cloud5: {
@@ -157,17 +158,18 @@ export const AUDIO = {
             null, // Step 1: Direction
             null, // Step 2: Choice popup
             `${BASE}/Leo/Excuse me, PO, Mr. Guardian….m4a`, // Step 3: "Excuse me, po, Mr. Guardian? May I speak with you?"
-            `${BASE}/gateofgratitude/Happy Stone Guardian.wav`, // Step 4: "Oh? That sounds much better. You used 'Po'. You are a respectful child. What do you need?"
+            `${BASE}/gateofgratitude/gATE3NEW.m4a`, // Step 4: "Oh? That sounds much better. You used 'Po'. You are a respectful child. What do you need?"
             null, // Step 5: Direction
             null, // Step 6: Choice popup
             `${BASE}/Leo/Pls open the door po.m4a`, // Step 7: "Please open the door, po. I really miss my family."
-            `${BASE}/gateofgratitude/Happy Stone Guardian.wav`, // Step 8: "Hmm. You are brave and polite. Very well. The Gate of Gratitude does not open to those who do not know how to ask nicely."
+            `${BASE}/gateofgratitude/GATE4NEW.m4a`, // Step 8: "Hmm. You are brave and polite. Very well. The Gate of Gratitude does not open to those who do not know how to ask nicely."
             null, // Steps 9–10: Door opening
             `${BASE}/Marky/Marky 20.m4a`, // Step 11: "You did it, Leo! You used the Magic Words!"
             null, // Step 12: Final Star
         ],
         bgm: `${BASE}/gateofgratitude/The Gate of Gratitude Chapter music.wav`,
         stoneGuardianCracks: `${BASE}/gateofgratitude/stone guardian cracks.mp3`, // SFX when door opens after step 8
+        happyStoneGuardianStep4: `${BASE}/gateofgratitude/Happy Stone Guardian.wav`, // plays before step 4 narration (GATE3)
     },
 
     cloud6: {
@@ -187,7 +189,7 @@ export const AUDIO = {
         voice: [
             null, // Step 0: auto-transition
             `${BASE}/Leo/Wait. I have to say one last thing..m4a`, // Step 1: "Wait. I have to say one last thing."
-            `${BASE}/Leo/Thank you. Thank you for helping me..m4a`, // Step 2: "Thank you. Thank you for helping me."
+            `${BASE}/Leo/thanksleo.m4a`, // Step 2: "Thank you. Thank you for helping me."
             `${BASE}/Marky/Marky 21.m4a`, // Step 3: "You are welcome, Hero. Goodbye, Leo!"
         ],
     },

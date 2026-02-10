@@ -19,19 +19,40 @@ const MARKY_STEP8 = '/assets/img/Marky1.webp';
 const MARKY_STEP9 = '/assets/img/Marky1-right.webp';
 
 export default function Cloud4() {
-    const { playVoice, stopVoice, playSFX, playAmbient, stopAmbient } = useAudio() ?? {};
+    const { playVoice, stopVoice, playSFX, playAmbient, stopAmbient, playBGM } = useAudio() ?? {};
     const [step, setStep] = useState(1);
+
+    // Strong wind mountains BGM from Cloud4 onwards
+    useEffect(() => {
+        if (AUDIO.bgm?.chapter3StrongWind && playBGM) playBGM(AUDIO.bgm.chapter3StrongWind, true);
+    }, [playBGM]);
 
     useEffect(() => {
         if (AUDIO.cloud4?.sleepingStoneGuardian && playAmbient) playAmbient(AUDIO.cloud4.sleepingStoneGuardian);
         return () => stopAmbient?.();
     }, [playAmbient, stopAmbient]);
 
+    // Stop sleeping ambient when "WHO IS SHOUTING?" appears (step 3); resume when "Oh no... I'm trapped forever" appears (step 6)
+    useEffect(() => {
+        if (step === 3) stopAmbient?.();
+        else if (step === 6 && AUDIO.cloud4?.sleepingStoneGuardian && playAmbient) playAmbient(AUDIO.cloud4.sleepingStoneGuardian);
+    }, [step, playAmbient, stopAmbient]);
+
     useEffect(() => {
         const src = AUDIO.cloud4?.voice?.[step - 1];
-        if (src && playVoice) playVoice(src);
-        else stopVoice?.();
-    }, [step, playVoice, stopVoice]);
+        if (step === 3 && AUDIO.cloud4?.stoneGuardianSfx && playSFX && playVoice && src) {
+            // Step 3: play SFX first (starts earlier), then start voice so they play alongside each other
+            playSFX(AUDIO.cloud4.stoneGuardianSfx);
+            playVoice(src);
+        } else if (step === 5 && src && playVoice && AUDIO.cloud4?.grumpyStoneGuardian) {
+            // Step 5: play main voice (GATE2), then grumpy stone guardian at the end
+            playVoice(src, 1, () => playVoice(AUDIO.cloud4.grumpyStoneGuardian));
+        } else if (src && playVoice) {
+            playVoice(src);
+        } else {
+            stopVoice?.();
+        }
+    }, [step, playVoice, stopVoice, playSFX]);
 
     const isStep3 = step === 3;
     const isStep4 = step === 4;

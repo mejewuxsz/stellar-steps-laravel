@@ -78,7 +78,7 @@ export default function Signup() {
 
     const canEnterPinLogin = role === 'hero'
         ? heroName.trim() !== ''
-        : guardianName.trim() !== '';
+        : guardianName.trim() !== '' && heroCode.trim() !== '';
 
     const switchToLogin = () => {
         setIsLogin(true);
@@ -127,7 +127,10 @@ export default function Signup() {
                     setErrorMessage('');
                     setIsSubmitting(true);
                     router.post(route('login.stellar'), {
-                        name: role === 'hero' ? heroName.trim() : guardianName.trim(),
+                        ...(role === 'hero'
+                            ? { name_or_code: heroName.trim() }
+                            : { name: guardianName.trim(), hero_code: heroCode.trim() }
+                        ),
                         pin: newPin,
                         role,
                     }, { preserveState: false, onFinish: () => setIsSubmitting(false) });
@@ -294,7 +297,7 @@ export default function Signup() {
                                                     <div className="space-y-1 w-full">
                                                         <input
                                                             type="text"
-                                                            placeholder="Enter Your Name"
+                                                            placeholder="Enter Name or Hero Code"
                                                             value={heroName}
                                                             onChange={(e) => {
                                                                 setHeroName(e.target.value);
@@ -314,34 +317,61 @@ export default function Signup() {
                                                                 }
                                                             }}
                                                         />
-                                                        <p className="text-lg sm:text-xl md:text-2xl font-semibold text-black text-center -mt-0.5">Hero Name</p>
+                                                        <p className="text-lg sm:text-xl md:text-2xl font-semibold text-black text-center -mt-0.5">Name or Hero Code</p>
                                                     </div>
                                                 ) : (
-                                                    <div className="space-y-1 w-full">
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Your Name"
-                                                            value={guardianName}
-                                                            onChange={(e) => {
-                                                                setGuardianName(e.target.value);
-                                                                if (!e.target.value.trim()) {
-                                                                    setPin('');
-                                                                    setErrorMessage('');
-                                                                }
-                                                            }}
-                                                            className="w-4/5 mx-auto block bg-transparent focus:outline-none focus:ring-0 text-center text-lg sm:text-xl md:text-2xl text-black placeholder-gray-500 cartoon-underline-black relative border-none"
-                                                            onFocus={(e) => {
-                                                                e.target.dataset.placeholder = e.target.placeholder;
-                                                                e.target.placeholder = '';
-                                                            }}
-                                                            onBlur={(e) => {
-                                                                if (!e.target.value) {
-                                                                    e.target.placeholder = e.target.dataset.placeholder || '';
-                                                                }
-                                                            }}
-                                                        />
-                                                        <p className="text-lg sm:text-xl md:text-2xl font-semibold text-black text-center -mt-0.5">Guardian Name</p>
-                                                    </div>
+                                                    <>
+                                                        <div className="space-y-1 w-full">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Enter Your Name"
+                                                                value={guardianName}
+                                                                onChange={(e) => {
+                                                                    setGuardianName(e.target.value);
+                                                                    if (!e.target.value.trim() || !heroCode.trim()) {
+                                                                        setPin('');
+                                                                        setErrorMessage('');
+                                                                    }
+                                                                }}
+                                                                className="w-4/5 mx-auto block bg-transparent focus:outline-none focus:ring-0 text-center text-lg sm:text-xl md:text-2xl text-black placeholder-gray-500 cartoon-underline-black relative border-none"
+                                                                onFocus={(e) => {
+                                                                    e.target.dataset.placeholder = e.target.placeholder;
+                                                                    e.target.placeholder = '';
+                                                                }}
+                                                                onBlur={(e) => {
+                                                                    if (!e.target.value) {
+                                                                        e.target.placeholder = e.target.dataset.placeholder || '';
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <p className="text-lg sm:text-xl md:text-2xl font-semibold text-black text-center -mt-0.5">Guardian Name</p>
+                                                        </div>
+                                                        <div className="space-y-1 w-full">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Enter Hero Code"
+                                                                value={heroCode}
+                                                                onChange={(e) => {
+                                                                    setHeroCode(e.target.value);
+                                                                    if (!guardianName.trim() || !e.target.value.trim()) {
+                                                                        setPin('');
+                                                                        setErrorMessage('');
+                                                                    }
+                                                                }}
+                                                                className="w-4/5 mx-auto block bg-transparent focus:outline-none focus:ring-0 text-center text-lg sm:text-xl md:text-2xl text-black placeholder-gray-500 cartoon-underline-black relative border-none"
+                                                                onFocus={(e) => {
+                                                                    e.target.dataset.placeholder = e.target.placeholder;
+                                                                    e.target.placeholder = '';
+                                                                }}
+                                                                onBlur={(e) => {
+                                                                    if (!e.target.value) {
+                                                                        e.target.placeholder = e.target.dataset.placeholder || '';
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <p className="text-lg sm:text-xl md:text-2xl font-semibold text-black text-center -mt-0.5">Hero Code</p>
+                                                        </div>
+                                                    </>
                                                 )}
                                             </>
                                         ) : role === 'hero' ? (
