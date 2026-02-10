@@ -88,7 +88,7 @@ export default function Cloud6End() {
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => (step === 3 ? setZapping(true) : setStep(step + 1))}
+                                onClick={() => { stopVoice?.(); step === 3 ? setZapping(true) : setStep(step + 1); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

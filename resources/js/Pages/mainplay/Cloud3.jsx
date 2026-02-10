@@ -20,7 +20,8 @@ export default function Cloud3() {
 
     useEffect(() => {
         const src = AUDIO.cloud3?.voice?.[step - 1];
-        if (src && playVoice) playVoice(src);
+        const vol = AUDIO.cloud3?.voiceVolume?.[step - 1];
+        if (src && playVoice) playVoice(src, vol);
         else stopVoice?.();
     }, [step, playVoice, stopVoice]);
 

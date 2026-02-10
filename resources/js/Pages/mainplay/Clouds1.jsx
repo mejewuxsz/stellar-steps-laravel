@@ -166,7 +166,7 @@ export default function Clouds1() {
                     <button
                         type="button"
                         className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                        onClick={() => router.visit(route('mainplay.cloud2-game-instruction'))}
+                        onClick={() => router.visit(route('mainplay.cloud2-game'))}
                         aria-label="Next"
                     >
                         <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

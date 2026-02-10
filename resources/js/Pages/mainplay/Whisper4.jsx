@@ -14,6 +14,7 @@ export default function Whisper4() {
         return () => stopVoice?.();
     }, [step, playVoice, stopVoice]);
     const handleChoice = (choice) => {
+        stopVoice?.();
         if (choice === 'B') setStep(2);
         // TODO: Choice A – navigate or show different outcome
     };
@@ -133,7 +134,7 @@ export default function Whisper4() {
                         {step === 0 ? (
                             <button
                                 type="button"
-                                onClick={() => setStep(1)}
+                                onClick={() => { stopVoice?.(); setStep(1); }}
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                                 aria-label="Next"
                             >
@@ -144,7 +145,7 @@ export default function Whisper4() {
                         ) : step === 2 ? (
                             <button
                                 type="button"
-                                onClick={() => setStep(3)}
+                                onClick={() => { stopVoice?.(); setStep(3); }}
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                                 aria-label="Next"
                             >
@@ -155,7 +156,7 @@ export default function Whisper4() {
                         ) : step === 3 ? (
                             <button
                                 type="button"
-                                onClick={() => setStep(4)}
+                                onClick={() => { stopVoice?.(); setStep(4); }}
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                                 aria-label="Next"
                             >
@@ -166,7 +167,7 @@ export default function Whisper4() {
                         ) : step === 4 ? (
                             <button
                                 type="button"
-                                onClick={() => router.visit(route('mainplay.whisper4-game'))}
+                                onClick={() => { stopVoice?.(); router.visit(route('mainplay.whisper4-game')); }}
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                                 aria-label="Next"
                             >

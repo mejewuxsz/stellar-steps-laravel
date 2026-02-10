@@ -50,18 +50,48 @@ export default function Stage2Attic() {
     const narrationLinesBeforeClick = [
         'The old paper and cinnamon smell of the attic. It is silent... until the humming begins to come back. Hmmmmmmm. It is coming out of the middle of the room.',
         '"Oh... over... there."',
-        '"I have never read a book that shines."',
+        "Leo creeps by a pile of antique paintings. He creeps closer to the light. It isn't a lamp. It isn't a flashlight. It is a book. A very, very old book.",
     ];
-    const voiceByStep = [null, '/assets/audio/Leo/oh over there.m4a', null];
+    const narrationLabelsBeforeClick = ['Narrator', 'LEO', 'Narrator'];
+    const voiceByStep = ['/assets/audio/ins/Narrator2.m4a', '/assets/audio/Leo/oh over there.m4a', '/assets/audio/ins/Narrator3.m4a'];
 
     const preClickDone = narrationStep >= narrationLinesBeforeClick.length;
 
+    const postClickVoiceByStep = ['/assets/audio/ins/Narrator4.m4a', '/assets/audio/ins/Instructions2.m4a']; // step 1: "Wipe the screen..."
+    const postClickLabels = ['Narrator', 'Instruction'];
+    const heroCongratsVoiceByStep = ['/assets/audio/ins/Narrator5.m4a', '/assets/audio/ins/Narrator5 2.m4a']; // step 0: "Well done, Hero!" step 1: "The Book suddenly shakes!..."
     const { playVoice, stopVoice } = useAudio() ?? {};
     useEffect(() => {
         if (!showDirtyBook && voiceByStep[narrationStep] && playVoice) {
             playVoice(voiceByStep[narrationStep]);
         }
     }, [narrationStep, showDirtyBook, playVoice]);
+    useEffect(() => {
+        if (showDirtyBook && showPostClickNarration && postClickVoiceByStep[postClickStep] && playVoice) {
+            playVoice(postClickVoiceByStep[postClickStep]);
+        }
+    }, [showDirtyBook, showPostClickNarration, postClickStep, playVoice]);
+    useEffect(() => {
+        if (!heroCongratsVisible || !heroCongratsVoiceByStep[heroCongratsStep] || !playVoice) return;
+        const src = heroCongratsVoiceByStep[heroCongratsStep];
+        const onEnded =
+            heroCongratsStep === 0
+                // After "Well done, Hero!" automatically move to second line and start gentle shake
+                ? () => {
+                      setHeroCongratsStep(1);
+                      setShakePhase('gentle');
+                  }
+                // After "The Book suddenly shakes!" immediately transition to prologue-end
+                : () => {
+                      setHeroCongratsVisible(false);
+                      setShakePhase('strong');
+                      setFadeToWhite(true);
+                      setTimeout(() => {
+                          router.visit(route('mainplay.prologue-end'));
+                      }, 1200); // short white flash before navigating
+                  };
+        playVoice(src, 1, onEnded);
+    }, [heroCongratsVisible, heroCongratsStep, playVoice, setFadeToWhite]);
 
     // When the dirty book is shown, draw the dirt texture onto the canvas.
     useEffect(() => {
@@ -111,24 +141,7 @@ export default function Stage2Attic() {
         }
     }
 
-    // After "Well done, Hero!" narration, make the book shake gently, then stronger.
-    useEffect(() => {
-        if (shakePhase !== 'gentle') return;
-        const t = setTimeout(() => setShakePhase('strong'), 800);
-        return () => clearTimeout(t);
-    }, [shakePhase]);
-
-    // When shaking strongly, wait 3 seconds, fade to white, then navigate to prologue-end.
-    useEffect(() => {
-        if (shakePhase !== 'strong') return;
-        const t = setTimeout(() => {
-            setFadeToWhite(true);
-            setTimeout(() => {
-                router.visit(route('mainplay.prologue-end'));
-            }, 800);
-        }, 2000);
-        return () => clearTimeout(t);
-    }, [shakePhase]);
+    // Strong shake is triggered from the hero congrats onEnded callback; no extra timing here.
 
     return (
         <>
@@ -162,36 +175,16 @@ export default function Stage2Attic() {
                 {/* Hero congrats overlay after most of the dirt is wiped – uses the same narration style */}
                 {heroCongratsVisible && (
                     <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[120]">
-                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4">
-                            <div className="flex-1 min-w-0">
-                                <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-white/90 mb-2">
-                                    Narrator
-                                </div>
-                                <div className="h-px bg-white/30 mb-2" aria-hidden />
-                                <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
-                                    {heroCongratsStep === 0
-                                        ? 'Well done, Hero!'
-                                        : 'The Book suddenly shakes! Rumble... Rumble... The Book suddenly opens.'}
-                                </div>
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20">
+                            <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-white/90 mb-2">
+                                Narrator
                             </div>
-                            <button
-                                type="button"
-                                className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => {
-                                    stopVoice?.();
-                                    if (heroCongratsStep === 0) {
-                                        setHeroCongratsStep(1);
-                                        setShakePhase('gentle');
-                                    } else {
-                                        setHeroCongratsVisible(false);
-                                    }
-                                }}
-                                aria-label="Next"
-                            >
-                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
+                            <div className="h-px bg-white/30 mb-2" aria-hidden />
+                            <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                {heroCongratsStep === 0
+                                    ? 'Well done, Hero!'
+                                    : 'The Book suddenly shakes! Rumble... Rumble... The Book suddenly opens.'}
+                            </div>
                         </div>
                     </div>
                 )}
@@ -319,7 +312,7 @@ export default function Stage2Attic() {
                             <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4">
                                 <div className="flex-1 min-w-0">
                                     <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-white/90 mb-2">
-                                        Narrator
+                                        {postClickLabels[postClickStep]}
                                     </div>
                                     <div className="h-px bg-white/30 mb-2" aria-hidden />
                                     <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
@@ -361,7 +354,7 @@ export default function Stage2Attic() {
                         <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4">
                             <div className="flex-1 min-w-0">
                                 <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-white/90 mb-2">
-                                    {narrationStep === 0 ? 'Narrator' : 'LEO'}
+                                    {narrationLabelsBeforeClick[narrationStep]}
                                 </div>
                                 <div className="h-px bg-white/30 mb-2" aria-hidden />
                                 <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">

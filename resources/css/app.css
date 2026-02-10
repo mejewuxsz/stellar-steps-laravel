@@ -615,7 +615,7 @@ input:focus {
     100% { transform: rotate(360deg); }
 }
 .star-spin {
-    animation: star-spin 0.7s ease-out forwards;
+    animation: star-spin 0.25s ease-out forwards;
     display: inline-block; /* needed so transform applies correctly */
 }
 

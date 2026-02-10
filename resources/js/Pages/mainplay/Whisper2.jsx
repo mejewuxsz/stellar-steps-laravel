@@ -4,13 +4,24 @@ import { useState, useEffect } from 'react';
 import { useAudio } from '@/contexts/AudioContext';
 import { AUDIO } from '@/config/audio';
 
+const SFX_WOOD_BREAK = '/assets/audio/whisper/wood break(1).mp3';
+const BGM_FOREST_NIGHT = '/assets/audio/whisper/Forest night ambiance.mp3';
+
 export default function Whisper2() {
     const [step, setStep] = useState(0); // 0 = Leo line, 1 = Marky line, 2 = Narrator SFX
-    const { playVoice } = useAudio() ?? {};
+    const { playVoice, playSFX, playBGM, stopVoice } = useAudio() ?? {};
+
+    // From Whisper2 onwards: start forest night ambiance as BGM and let it continue
+    useEffect(() => {
+        if (BGM_FOREST_NIGHT && playBGM) playBGM(BGM_FOREST_NIGHT, true);
+    }, [playBGM]);
     useEffect(() => {
         const src = AUDIO.whisper2?.voice?.[step];
         if (src && playVoice) playVoice(src);
     }, [step, playVoice]);
+    useEffect(() => {
+        if (step === 2 && SFX_WOOD_BREAK && playSFX) playSFX(SFX_WOOD_BREAK);
+    }, [step, playSFX]);
 
     const SPEAKERS = ['LEO', 'MARKY', 'NARRATOR'];
     const LINES = [
@@ -72,6 +83,7 @@ export default function Whisper2() {
                                 step < LINES.length - 1 ? 'hover:bg-yellow-200 cursor-pointer transition-colors' : 'opacity-60 cursor-default'
                             }`}
                             onClick={() => {
+                                stopVoice?.();
                                 if (step < LINES.length - 1) {
                                     setStep(step + 1);
                                 } else {

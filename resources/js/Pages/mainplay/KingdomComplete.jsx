@@ -88,6 +88,7 @@ export default function KingdomComplete() {
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                                 onClick={() => {
+                                    stopVoice?.();
                                     if (step === 0) setStep(1);
                                     else if (step === 3) setStep(4);
                                     else if (step === 4) router.visit(route('mainplay.kingdom-complete-star'));

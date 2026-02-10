@@ -84,7 +84,7 @@ export function AudioProvider({ children }) {
     }, [getGain]);
 
     const playVoice = useCallback(
-        (src, volumeMultiplier = 1) => {
+        (src, volumeMultiplier = 1, onEnded) => {
             if (!src) return;
             if (voiceRef.current) {
                 voiceRef.current.pause();
@@ -107,6 +107,7 @@ export function AudioProvider({ children }) {
                 if (bgmRef.current && Number.isFinite(fullGain)) {
                     bgmRef.current.volume = fullGain;
                 }
+                if (typeof onEnded === 'function') onEnded();
             };
         },
         [getGain]

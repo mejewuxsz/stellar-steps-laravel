@@ -111,7 +111,7 @@ export default function Whisper4End() {
                         {(step === 0 || step === 1 || step === 2 || step === 3 || step === 4) && (
                             <button
                                 type="button"
-                                onClick={() => setStep(step + 1)}
+                                onClick={() => { stopVoice?.(); setStep(step + 1); }}
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors cursor-pointer"
                                 aria-label="Next"
                             >

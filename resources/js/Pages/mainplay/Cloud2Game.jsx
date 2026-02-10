@@ -7,8 +7,20 @@ import { AUDIO } from '@/config/audio';
 const CLOUD_IMG = '/assets/img/The Gate of Gratitude-20260201T170632Z-3-001/The Gate of Gratitude/cloud.PNG';
 const ROCK_PLATFORM_IMG = '/assets/img/The Gate of Gratitude-20260201T170632Z-3-001/The Gate of Gratitude/rock platform.webp';
 const BAG_IMG = '/assets/img/The Gate of Gratitude-20260201T170632Z-3-001/The Gate of Gratitude/Bag Icon.webp';
+const MARKY_IMG = '/assets/img/whisperingwoods/Marky4-right.webp';
 
 const WIN_SCORE = 10;
+const MAX_LIVES = 3;
+const IMG_GAME_OVER_X = '/assets/img/X.png';
+const GAME_OVER_X_DURATION_MS = 2000;
+
+function Heart({ filled, className = '' }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill={filled ? '#ef4444' : 'none'} stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+    );
+}
 
 // Generate a row: 3 objects = 2 rocks + 1 cloud in random order
 function generateRow() {
@@ -70,6 +82,10 @@ export default function Cloud2Game() {
     const [hasWon, setHasWon] = useState(false);
     const [jumpArc, setJumpArc] = useState(null);
     const [shiftContent, setShiftContent] = useState(null); // [newUpper, newMiddle, oldUpper, oldMiddle, oldLower] during shift
+    const [showInstruction, setShowInstruction] = useState(true);
+    const [lives, setLives] = useState(MAX_LIVES);
+    const [gameOver, setGameOver] = useState(false);
+    const [gameOverShowMenu, setGameOverShowMenu] = useState(false);
 
     const getNextRow = useCallback((currentRow) => (currentRow - 1 + 3) % 3, []);
     const getRowLen = useCallback((r, plat = platforms) => plat[r]?.length ?? 3, [platforms]);
@@ -82,7 +98,7 @@ export default function Cloud2Game() {
     }, [playBGM, stopBGM]);
 
     const jump = useCallback((direction) => {
-        if (isFalling || isJumping || isShifting || hasWon) return;
+        if (isFalling || isJumping || isShifting || hasWon || gameOver) return;
 
         const nextRow = getNextRow(row);
         const currentRowLen = getRowLen(row);
@@ -107,16 +123,21 @@ export default function Cloud2Game() {
             setIsJumping(false);
             if (platformType === 'cloud') {
                 playSFX?.(AUDIO.sfx?.incorrect);
-                setRow(nextRow);
-                setPos(nextPos);
-                setIsFalling(true);
-                setScore(0);
-                setTimeout(() => {
-                    setIsFalling(false);
-                    setRow(2);
-                    setPos(1);
-                    setPlatforms([generateRow(), generateRow(), ['rock', 'rock', 'cloud']]);
-                }, 800);
+                const newLives = Math.max(0, lives - 1);
+                setLives(newLives);
+                if (newLives === 0) setGameOver(true);
+                else {
+                    setRow(nextRow);
+                    setPos(nextPos);
+                    setIsFalling(true);
+                    setScore(0);
+                    setTimeout(() => {
+                        setIsFalling(false);
+                        setRow(2);
+                        setPos(1);
+                        setPlatforms([generateRow(), generateRow(), ['rock', 'rock', 'cloud']]);
+                    }, 800);
+                }
             } else if (nextRow === 0) {
                 playSFX?.(AUDIO.sfx?.correct);
                 // Bag reached upper section: trigger map shift
@@ -149,7 +170,7 @@ export default function Cloud2Game() {
                 setTimeout(() => setIsBouncing(false), 350);
             }
         }, 600);
-    }, [row, pos, isFalling, isJumping, isShifting, hasWon, platforms, getNextRow, getRowLen, playSFX]);
+    }, [row, pos, isFalling, isJumping, isShifting, hasWon, gameOver, lives, platforms, getNextRow, getRowLen, playSFX]);
     jumpRef.current = jump;
 
     // When shift animation completes
@@ -171,6 +192,16 @@ export default function Cloud2Game() {
         window.addEventListener('keydown', onKeyDown);
         return () => window.removeEventListener('keydown', onKeyDown);
     }, []);
+
+    // When game over: show X first, then after delay show "Try again" menu
+    useEffect(() => {
+        if (!gameOver) {
+            setGameOverShowMenu(false);
+            return;
+        }
+        const t = setTimeout(() => setGameOverShowMenu(true), GAME_OVER_X_DURATION_MS);
+        return () => clearTimeout(t);
+    }, [gameOver]);
 
     const displayPlatforms = shiftContent ?? platforms;
 
@@ -206,6 +237,14 @@ export default function Cloud2Game() {
                 aria-label="Tap left or right to jump"
             >
                 <BackToMapButton />
+                {/* Lives: 3 hearts */}
+                {!showInstruction && !hasWon && !gameOver && (
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 sm:top-6 z-[120] flex items-center gap-1.5 sm:gap-2" aria-label={`${lives} lives left`}>
+                        {Array.from({ length: MAX_LIVES }, (_, i) => (
+                            <Heart key={i} filled={i < lives} className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-md" />
+                        ))}
+                    </div>
+                )}
                 {/* Score */}
                 <div
                     className="absolute top-4 left-4 z-[120] cartoon-thin text-4xl sm:text-5xl font-bold"
@@ -228,6 +267,64 @@ export default function Cloud2Game() {
                     <div className="flex-1 cursor-pointer" onPointerDown={(e) => { e.preventDefault(); jump('left'); }} role="button" tabIndex={0} aria-label="Jump left" />
                     <div className="flex-1 cursor-pointer" onPointerDown={(e) => { e.preventDefault(); jump('right'); }} role="button" tabIndex={0} aria-label="Jump right" />
                 </div>
+
+                {/* Instruction overlay: Marky + narration (dismiss to start game) */}
+                {showInstruction && (
+                    <>
+                        <div className="absolute inset-0 bg-white/65 z-[125] pointer-events-auto" aria-hidden />
+                        <img
+                            src={MARKY_IMG}
+                            alt=""
+                            loading="eager"
+                            decoding="async"
+                            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(60vw,400px)] h-auto sm:w-[min(70vw,550px)] object-contain pointer-events-none z-[128]"
+                            aria-hidden
+                        />
+                        <div className="absolute inset-x-4 sm:inset-x-10 bottom-6 sm:bottom-8 z-[130] flex justify-center pointer-events-none">
+                            <div className="w-full max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4 pointer-events-auto">
+                                <div className="flex-1 min-w-0">
+                                    <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">
+                                        Direction: Tap left or right to help Leo hop to the next platform and reach the top of the mountain until you score 10!
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
+                                    onClick={() => setShowInstruction(false)}
+                                    aria-label="Next"
+                                >
+                                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                {/* Game over: first show X, then "Try again" menu */}
+                {gameOver && !gameOverShowMenu && (
+                    <div className="absolute inset-0 z-[135] flex items-center justify-center bg-black" aria-hidden>
+                        <img
+                            src={IMG_GAME_OVER_X}
+                            alt=""
+                            className="max-w-[min(80vw,400px)] h-auto object-contain fade-in-soft"
+                        />
+                    </div>
+                )}
+                {gameOver && gameOverShowMenu && (
+                    <div className="absolute inset-0 z-[135] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+                        <p className="text-white text-2xl sm:text-3xl font-bold mb-6">Game Over</p>
+                        <p className="text-white/90 text-base sm:text-lg mb-8">You ran out of lives. Try again!</p>
+                        <button
+                            type="button"
+                            onClick={() => router.visit(route('mainplay.cloud2-game'))}
+                            className="px-6 py-3 rounded-xl bg-orange-400 hover:bg-orange-500 text-white font-semibold border-2 border-white shadow-lg transition-colors"
+                        >
+                            Try again
+                        </button>
+                    </div>
+                )}
 
                 {/* Bag - positioned over current platform */}
                 <img

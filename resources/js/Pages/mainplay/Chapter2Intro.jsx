@@ -1,6 +1,8 @@
 import { Head, router } from '@inertiajs/react';
 import BackToMapButton from '@/Components/BackToMapButton';
 import { useEffect, useState } from 'react';
+import { useAudio } from '@/contexts/AudioContext';
+import { AUDIO } from '@/config/audio';
 
 const WOOD_BG = '/assets/img/LP_BG.webp';
 
@@ -10,6 +12,15 @@ const WOOD_BG = '/assets/img/LP_BG.webp';
 
 export default function Chapter2Intro() {
     const [phase, setPhase] = useState('title'); // 'title' | 'leo'
+    const { playBGM } = useAudio() ?? {};
+
+    // On reload of Chapter2Intro, start Chapter 2 BGM and let it continue through the woods
+    useEffect(() => {
+        const nav = performance.getEntriesByType?.('navigation')?.[0];
+        const isReload = nav?.type === 'reload';
+        if (!isReload) return;
+        if (AUDIO.bgm?.chapter2 && playBGM) playBGM(AUDIO.bgm.chapter2, true);
+    }, [playBGM]);
 
     useEffect(() => {
         if (phase !== 'title') return;

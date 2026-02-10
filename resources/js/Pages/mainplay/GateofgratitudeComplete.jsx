@@ -19,56 +19,56 @@ export default function GateofgratitudeComplete() {
 
     useEffect(() => {
         if (phase === 0) {
-            const t = setTimeout(() => setPhase(1), 800);
+            const t = setTimeout(() => setPhase(1), 200);
             return () => clearTimeout(t);
         }
     }, [phase]);
 
     useEffect(() => {
         if (phase === 1) {
-            const t = setTimeout(() => setPhase(2), 3200);
+            const t = setTimeout(() => setPhase(2), 900);
             return () => clearTimeout(t);
         }
     }, [phase]);
 
     useEffect(() => {
         if (phase === 2) {
-            const t = setTimeout(() => setPhase(3), 700);
+            const t = setTimeout(() => setPhase(3), 250);
             return () => clearTimeout(t);
         }
     }, [phase]);
 
     useEffect(() => {
         if (phase === 3) {
-            const t = setTimeout(() => setPhase(4), 3200);
+            const t = setTimeout(() => setPhase(4), 900);
             return () => clearTimeout(t);
         }
     }, [phase]);
 
     useEffect(() => {
         if (phase === 4) {
-            const t = setTimeout(() => setPhase(5), 700);
+            const t = setTimeout(() => setPhase(5), 250);
             return () => clearTimeout(t);
         }
     }, [phase]);
 
     useEffect(() => {
         if (phase === 5) {
-            const t = setTimeout(() => setPhase(6), 3200);
+            const t = setTimeout(() => setPhase(6), 900);
             return () => clearTimeout(t);
         }
     }, [phase]);
 
     useEffect(() => {
         if (phase === 6) {
-            const t = setTimeout(() => setPhase(7), 700);
+            const t = setTimeout(() => setPhase(7), 250);
             return () => clearTimeout(t);
         }
     }, [phase]);
 
     useEffect(() => {
         if (phase === 7) {
-            const t = setTimeout(() => setPhase(8), 600);
+            const t = setTimeout(() => setPhase(8), 250);
             return () => clearTimeout(t);
         }
     }, [phase]);

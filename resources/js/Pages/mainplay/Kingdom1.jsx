@@ -6,10 +6,17 @@ import { useAudio } from '@/contexts/AudioContext';
 const FALL_DURATION_MS = 2500;
 const SFX_FALLING = '/assets/audio/bgm/sfx 1 - Falling.mp3';
 
+const VOICE_NARRATOR = '/assets/audio/ins/Narrator7.m4a';
+
 export default function Kingdom1() {
-    const { playSFX } = useAudio() ?? {};
+    const { playSFX, playVoice, stopVoice } = useAudio() ?? {};
     const [showNarration, setShowNarration] = useState(false);
     const [showMarky, setShowMarky] = useState(false);
+
+    useEffect(() => {
+        if (showNarration && VOICE_NARRATOR && playVoice) playVoice(VOICE_NARRATOR);
+        return () => stopVoice?.();
+    }, [showNarration, playVoice, stopVoice]);
 
     useEffect(() => {
         playSFX?.(SFX_FALLING);
@@ -80,7 +87,7 @@ export default function Kingdom1() {
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => router.visit(route('mainplay.kingdom2'))}
+                                onClick={() => { stopVoice?.(); router.visit(route('mainplay.kingdom2')); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

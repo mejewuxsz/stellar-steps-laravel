@@ -6,9 +6,24 @@ import { useState, useEffect } from 'react';
 
 const KINGDOM3_BGM = '/assets/audio/bgm/BGM - Frame 10 - 14.wav';
 const SFX_CROWN = '/assets/audio/bgm/SFX - My Crown! You found it!.MP3';
+const VOICE_INSTRUCTIONS = '/assets/audio/ins/Instructions3.m4a';
+const IMG_GAME_OVER_X = '/assets/img/X.png';
+const MAX_LIVES = 3;
+const GAME_OVER_X_DURATION_MS = 2000;
+
+function Heart({ filled, className = '' }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill={filled ? '#ef4444' : 'none'} stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+    );
+}
 
 export default function Kingdom3() {
-    const { playSFX, playBGM } = useAudio() ?? {};
+    const { playSFX, playBGM, playVoice, stopVoice } = useAudio() ?? {};
+    const [lives, setLives] = useState(MAX_LIVES);
+    const [gameOver, setGameOver] = useState(false);
+    const [gameOverShowMenu, setGameOverShowMenu] = useState(false);
     const [showNarration, setShowNarration] = useState(false);
     const [placements, setPlacements] = useState({
         toyBox: false,
@@ -124,10 +139,15 @@ src: '/assets/img/stuff/Hamper.webp',
             });
             setPlacedItems((prev) => ({ ...prev, [item]: true }));
         } else {
+            if (gameOver) return;
             playSFX?.(AUDIO.sfx?.incorrect);
-            // Wrong drop: trigger shake and red glow
+            setLives((prev) => {
+                const next = Math.max(0, prev - 1);
+                if (next === 0) setGameOver(true);
+                return next;
+            });
             setWrongDropTarget(target);
-            setTimeout(() => setWrongDropTarget(null), 2000); // Reset after 2 seconds
+            setTimeout(() => setWrongDropTarget(null), 2000);
         }
     };
 
@@ -142,11 +162,60 @@ src: '/assets/img/stuff/Hamper.webp',
         };
     }, []);
 
+    useEffect(() => {
+        if (showNarration && VOICE_INSTRUCTIONS && playVoice) playVoice(VOICE_INSTRUCTIONS);
+        return () => stopVoice?.();
+    }, [showNarration, playVoice, stopVoice]);
+
+    // When game over: show X first, then after delay show "Try again" menu
+    useEffect(() => {
+        if (!gameOver) {
+            setGameOverShowMenu(false);
+            return;
+        }
+        const t = setTimeout(() => setGameOverShowMenu(true), GAME_OVER_X_DURATION_MS);
+        return () => clearTimeout(t);
+    }, [gameOver]);
+
     return (
         <>
             <Head title="Chapter 1: The Kingdom of Clutter" />
             <div className="fixed inset-0 z-[100] w-full h-full bg-black">
                 <BackToMapButton />
+
+                {/* Lives: 3 hearts */}
+                {!allPlaced && !gameOver && (
+                    <div className="absolute top-6 left-6 sm:top-8 sm:left-8 z-[115] flex items-center gap-1.5 sm:gap-2" aria-label={`${lives} lives left`}>
+                        {Array.from({ length: MAX_LIVES }, (_, i) => (
+                            <Heart key={i} filled={i < lives} className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-md" />
+                        ))}
+                    </div>
+                )}
+
+                {/* Game over: first show X, then "Try again" menu */}
+                {gameOver && !gameOverShowMenu && (
+                    <div className="absolute inset-0 z-[130] flex items-center justify-center bg-black" aria-hidden>
+                        <img
+                            src={IMG_GAME_OVER_X}
+                            alt=""
+                            className="max-w-[min(80vw,400px)] h-auto object-contain fade-in-soft"
+                        />
+                    </div>
+                )}
+                {gameOver && gameOverShowMenu && (
+                    <div className="absolute inset-0 z-[130] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+                        <p className="text-white text-2xl sm:text-3xl font-bold mb-6">Game Over</p>
+                        <p className="text-white/90 text-base sm:text-lg mb-8">You ran out of lives. Try again!</p>
+                        <button
+                            type="button"
+                            onClick={() => router.visit(route('mainplay.kingdom3'))}
+                            className="px-6 py-3 rounded-xl bg-orange-400 hover:bg-orange-500 text-white font-semibold border-2 border-white shadow-lg transition-colors"
+                        >
+                            Try again
+                        </button>
+                    </div>
+                )}
+
                 {/* Darkened background */}
                 <div className="absolute inset-0">
                     <img

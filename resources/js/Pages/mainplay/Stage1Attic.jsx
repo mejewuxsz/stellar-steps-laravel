@@ -91,9 +91,10 @@ export default function Stage1Attic() {
     const narrationLines = [
         '"Lola said there are only old boxes up in the attic. But I tell you I heard someone humming up there. Like a giant bee... or magic?"',
         "Leo looks up. All the way up the ladder, and the door is firmly closed. He attempts to get up to it alone, but he is a bit too short. He needs a helper. He needs you.",
-        "Tap the ladder and make Leo climb it!",
+        "Tap on the steps on the ladder and count with me to help Leo climb. Are you ready?",
     ];
-    const voiceByStep = [VOICE_LEO_LOLA, null, null];
+    const narrationLabels = ['LEO', 'Narrator', 'Instruction'];
+    const voiceByStep = [VOICE_LEO_LOLA, '/assets/audio/ins/Narrator1.m4a', '/assets/audio/ins/Instructions1.m4a'];
 
     const narrationDone = overlayPhase === 'done' && narrationStep >= narrationLines.length;
 
@@ -222,7 +223,7 @@ export default function Stage1Attic() {
                         <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20 flex items-center gap-4">
                             <div className="flex-1 min-w-0">
                                 <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-white/90 mb-2">
-                                    {narrationStep === 0 ? 'LEO' : 'Narrator'}
+                                    {narrationLabels[narrationStep]}
                                 </div>
                                 <div className="h-px bg-white/30 mb-2" aria-hidden />
                                 <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">

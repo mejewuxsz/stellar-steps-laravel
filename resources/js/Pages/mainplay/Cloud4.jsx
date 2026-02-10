@@ -31,8 +31,7 @@ export default function Cloud4() {
         const src = AUDIO.cloud4?.voice?.[step - 1];
         if (src && playVoice) playVoice(src);
         else stopVoice?.();
-        if (step === 3 && AUDIO.cloud4?.stoneGuardianSfx && playSFX) playSFX(AUDIO.cloud4.stoneGuardianSfx);
-    }, [step, playVoice, stopVoice, playSFX]);
+    }, [step, playVoice, stopVoice]);
 
     const isStep3 = step === 3;
     const isStep4 = step === 4;

@@ -34,12 +34,14 @@ export default function Cloud5() {
     const [starClicked, setStarClicked] = useState(false);
 
     const handleChoice = (choice) => {
+        stopVoice?.();
         if (choice === 'B') {
             setStep(3);
         }
     };
 
     const handleChoiceStep6 = (choice) => {
+        stopVoice?.();
         if (choice === 'B') {
             setStep(7);
         }
@@ -48,7 +50,7 @@ export default function Cloud5() {
     useEffect(() => {
         const src = AUDIO.cloud5?.voice?.[step - 1];
         if (src && playVoice) playVoice(src);
-        else stopVoice?.();
+        else if (step !== 12) stopVoice?.(); // step 12 has no voice; don't stop so Marky (step 11) can finish
         if (step === 9 && AUDIO.cloud5?.stoneGuardianCracks && playSFX) playSFX(AUDIO.cloud5.stoneGuardianCracks);
     }, [step, playVoice, stopVoice, playSFX]);
 
@@ -140,7 +142,7 @@ export default function Cloud5() {
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => setStep(2)}
+                                onClick={() => { stopVoice?.(); setStep(2); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -187,7 +189,7 @@ export default function Cloud5() {
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => setStep(4)}
+                                onClick={() => { stopVoice?.(); setStep(4); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -214,7 +216,7 @@ export default function Cloud5() {
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => setStep(5)}
+                                onClick={() => { stopVoice?.(); setStep(5); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -237,7 +239,7 @@ export default function Cloud5() {
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => setStep(6)}
+                                onClick={() => { stopVoice?.(); setStep(6); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -284,7 +286,7 @@ export default function Cloud5() {
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => setStep(8)}
+                                onClick={() => { stopVoice?.(); setStep(8); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -311,7 +313,7 @@ export default function Cloud5() {
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => setStep(9)}
+                                onClick={() => { stopVoice?.(); setStep(9); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -342,7 +344,7 @@ export default function Cloud5() {
                             <button
                                 type="button"
                                 className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
-                                onClick={() => setStep(12)}
+                                onClick={() => { setStep(12); }}
                                 aria-label="Next"
                             >
                                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -380,7 +382,7 @@ export default function Cloud5() {
                             <div className="mx-auto max-w-4xl rounded-2xl bg-black/70 text-white px-5 py-4 sm:px-6 sm:py-5 backdrop-blur-sm border border-white/20">
                                 <div className="flex-1 min-w-0">
                                     <div className="text-center text-sm sm:text-base font-semibold uppercase tracking-wider text-white/90 mb-2">
-                                        Marky
+                                        Instruction
                                     </div>
                                     <div className="h-px bg-white/30 mb-2" aria-hidden />
                                     <div className="cartoon-thin narration-text text-base sm:text-lg leading-relaxed drop-shadow text-left">

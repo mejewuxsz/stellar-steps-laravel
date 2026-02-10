@@ -5,11 +5,8 @@ import { useAudio } from '@/contexts/AudioContext';
 import { AUDIO } from '@/config/audio';
 
 export default function Whisper1() {
-    const { playVoice } = useAudio() ?? {};
+    const { playVoice, stopVoice } = useAudio() ?? {};
     useEffect(() => {
-        const nav = performance.getEntriesByType?.('navigation')?.[0];
-        const isReload = nav?.type === 'reload';
-        if (isReload) return;
         const src = AUDIO.whisper1?.voice?.[0];
         if (src && playVoice) playVoice(src);
     }, [playVoice]);
@@ -63,6 +60,7 @@ export default function Whisper1() {
                             type="button"
                             className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 bg-yellow-300 flex items-center justify-center hover:bg-yellow-200 transition-colors"
                             onClick={() => {
+                                stopVoice?.();
                                 router.visit(route('mainplay.whisper2'));
                             }}
                             aria-label="Next"

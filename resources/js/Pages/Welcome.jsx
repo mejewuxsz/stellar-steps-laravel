@@ -1,18 +1,59 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
+
+/** Sequence: 'book' → 'leo' (slide in) → 'narration' (show) → 'gone' (both disappear) */
+const PHASE_BOOK = 'book';
+const PHASE_LEO = 'leo';
+const PHASE_NARRATION = 'narration';
+const PHASE_GONE = 'gone';
+
+const DELAY_BEFORE_LEO_MS = 800;
+const DELAY_BEFORE_NARRATION_MS = 500;
+const DELAY_BEFORE_GONE_MS = 5000;
 
 export default function Welcome() {
     const [bookLoaded, setBookLoaded] = useState(false);
     const [titleLoaded, setTitleLoaded] = useState(false);
+    const [phase, setPhase] = useState(PHASE_BOOK);
+    const [leoInPosition, setLeoInPosition] = useState(false);
+
+    useEffect(() => {
+        const t1 = setTimeout(() => setPhase(PHASE_LEO), DELAY_BEFORE_LEO_MS);
+        const t2 = setTimeout(
+            () => setPhase(PHASE_NARRATION),
+            DELAY_BEFORE_LEO_MS + DELAY_BEFORE_NARRATION_MS
+        );
+        const t3 = setTimeout(
+            () => setPhase(PHASE_GONE),
+            DELAY_BEFORE_LEO_MS + DELAY_BEFORE_NARRATION_MS + DELAY_BEFORE_GONE_MS
+        );
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+            clearTimeout(t3);
+        };
+    }, []);
+
+    // Trigger Leo slide-in after phase becomes LEO so CSS transition runs
+    useEffect(() => {
+        if (phase !== PHASE_LEO) return;
+        const id = setTimeout(() => setLeoInPosition(true), 50);
+        return () => clearTimeout(id);
+    }, [phase]);
 
     const handleTap = () => {
         router.visit('/signup');
     };
 
+    const showLeo = phase === PHASE_LEO || phase === PHASE_NARRATION || phase === PHASE_GONE;
+    const leoSlideIn = (phase === PHASE_LEO && leoInPosition) || phase === PHASE_NARRATION || phase === PHASE_GONE;
+    const showNarration = phase === PHASE_NARRATION;
+
     return (
         <>
             <Head title="Stellar Steps">
                 <link rel="preload" href="/assets/img/LP_BG-960w.webp" as="image" />
+                <link rel="preload" href="/assets/img/Leointro.png" as="image" />
             </Head>
             <div className="min-h-screen w-full flex items-center justify-center relative" style={{ backgroundColor: '#5c4a3d' }}>
                 <img
@@ -25,6 +66,35 @@ export default function Welcome() {
                     className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
                     aria-hidden
                 />
+
+                {/* Leo + narration: appear from side → narration → then both disappear */}
+                <div
+                    className={`absolute inset-0 z-[15] pointer-events-none transition-opacity duration-500 ${
+                        phase === PHASE_BOOK || phase === PHASE_GONE ? 'opacity-0' : 'opacity-100'
+                    }`}
+                >
+                    <img
+                        src="/assets/img/Leointro.png"
+                        alt=""
+                        loading="eager"
+                        decoding="async"
+                        className={`absolute left-0 bottom-[18%] w-[min(40vw,340px)] h-auto object-contain object-bottom drop-shadow-lg transition-transform duration-700 ease-out ${
+                            leoSlideIn ? '-translate-x-[5%]' : '-translate-x-[120%]'
+                        }`}
+                        aria-hidden
+                    />
+                    <div
+                        className={`absolute left-[min(28vw,220px)] bottom-[55%] max-w-[min(48vw,300px)] rounded-2xl bg-orange-400 border-2 border-white px-4 py-3 shadow-lg transition-opacity duration-400 ${
+                            showNarration ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.2))' }}
+                    >
+                        <p className="text-white text-base sm:text-lg font-medium leading-snug text-center cartoon-thin">
+                            Hello There! I am Leo, welcome to Stellar Steps! To start, please tap the book to open.
+                        </p>
+                    </div>
+                </div>
+
                 <button
                     type="button"
                     onClick={handleTap}

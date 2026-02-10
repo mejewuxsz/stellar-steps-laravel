@@ -99,7 +99,7 @@ function isInWoundZone(centerX, centerY) {
 const WHISPER4_GAME_RELOAD_VOICE = '/assets/audio/Marky/Marky 13.m4a';
 
 export default function Whisper4Game() {
-    const { playSFX, playVoice } = useAudio() ?? {};
+    const { playSFX, playVoice, stopVoice } = useAudio() ?? {};
     const [showDirection, setShowDirection] = useState(true);
     const [thornRemoved, setThornRemoved] = useState(false);
     const [bandageApplied, setBandageApplied] = useState(false);
@@ -128,7 +128,14 @@ export default function Whisper4Game() {
     }, [thornRemoved]);
 
     useEffect(() => {
-        if (bandageApplied) playSFX?.(AUDIO.sfx.starClick);
+        if (thornRemoved && !wolfDismissed && AUDIO.whisper4Game?.wolfOuch && playVoice) {
+            playVoice(AUDIO.whisper4Game.wolfOuch);
+            return () => stopVoice?.();
+        }
+    }, [thornRemoved, wolfDismissed, playVoice, stopVoice]);
+
+    useEffect(() => {
+        if (bandageApplied) playSFX?.(AUDIO.whisper4Game?.sparkle);
     }, [bandageApplied, playSFX]);
 
     useEffect(() => {
@@ -141,12 +148,12 @@ export default function Whisper4Game() {
         showDirection
             ? null
             : bandageApplied
-              ? { speaker: 'NARRATOR', text: 'Sound: Sparkle! Sparkle!', showNext: true }
+              ? { speaker: 'INSTRUCTION', text: 'Sound: Sparkle! Sparkle!', showNext: true }
               : wolfDismissed
-                ? { speaker: 'NARRATOR', text: 'Step 2: Drag the bandage all over the boo-boo!', showNext: false }
+                ? { speaker: 'INSTRUCTION', text: 'Step 2: Drag the bandage all over the boo-boo!', showNext: false }
                 : thornRemoved
                   ? { speaker: 'WOLF', text: "Ouch! ... Oh, that feels better already.", showNext: false }
-                  : { speaker: 'NARRATOR', text: 'Step 1: Drag the tweezer to the thorn.', showNext: false };
+                  : { speaker: 'INSTRUCTION', text: 'Step 1: Drag the tweezer to the thorn.', showNext: false };
 
     return (
         <>
@@ -194,7 +201,10 @@ export default function Whisper4Game() {
                     decoding="async"
                     style={tweezers.style}
                     className={`absolute ${thornRemoved ? 'w-[min(55vmin,60vw,650px)]' : 'w-[min(40vmin,48vw,500px)]'} h-auto object-contain pointer-events-auto z-[50] select-none ${tweezers.className} ${tweezers.isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-                    onPointerDown={tweezers.onPointerDown}
+                    onPointerDown={(e) => {
+                        if (!thornRemoved) playSFX?.(AUDIO.whisper4Game?.tweezer);
+                        tweezers.onPointerDown(e);
+                    }}
                     aria-hidden
                     draggable={false}
                 />
